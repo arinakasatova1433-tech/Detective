@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 Detective – Capítulo 3</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background: #3b2e24;
+            font-family: 'Segoe UI', 'Courier New', monospace;
+            padding: 2rem 1rem;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            max-width: 1100px;
+            width: 100%;
+            background: #c9b69a;
+            background-image: repeating-linear-gradient(45deg, #b89f80 0px, #b89f80 2px, #d4bea0 2px, #d4bea0 4px);
+            border-radius: 30px;
+            padding: 2rem 2rem 1.5rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.7), inset 0 0 20px rgba(0,0,0,0.2);
+            border: 4px solid #8a7a62;
+            position: relative;
+        }
+        .container::before {
+            content: "📌";
+            position: absolute;
+            top: 10px;
+            left: 15px;
+            font-size: 3rem;
+            opacity: 0.4;
+            transform: rotate(-20deg);
+        }
+        .container::after {
+            content: "📌";
+            position: absolute;
+            bottom: 10px;
+            right: 15px;
+            font-size: 3rem;
+            opacity: 0.4;
+            transform: rotate(20deg);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.8rem;
+            font-family: 'Times New Roman', serif;
+            color: #2f241a;
+            text-shadow: 0 2px 4px rgba(255,215,150,0.3);
+            letter-spacing: 4px;
+            background: rgba(255,235,200,0.4);
+            padding: 0.2rem 2rem;
+            border-radius: 60px;
+            margin: 0 auto 1.5rem;
+            display: inline-block;
+            backdrop-filter: blur(2px);
+            border: 2px solid #8a7a62;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        .subtitle {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #3d3228;
+            margin-top: -1rem;
+            margin-bottom: 2rem;
+            font-style: italic;
+            background: rgba(200,180,150,0.3);
+            padding: 0.2rem 1rem;
+            border-radius: 30px;
+            display: inline-block;
+        }
+
+        .section-title {
+            background: #f5e6c8;
+            padding: 0.4rem 1.5rem;
+            border-radius: 40px;
+            display: inline-block;
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #2f241a;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+            border: 1px solid #b8a080;
+            margin: 1.5rem 0 0.8rem;
+            backdrop-filter: blur(2px);
+        }
+        .section-title span { margin-right: 0.5rem; }
+
+        /* VOCAB – кликабельные плитки */
+        .vocab-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            justify-content: center;
+            background: rgba(160,130,100,0.2);
+            padding: 1.5rem;
+            border-radius: 20px;
+            backdrop-filter: blur(3px);
+            border: 2px dashed #8a7a62;
+            min-height: 200px;
+        }
+        .vocab-column {
+            flex: 1 1 200px;
+            min-width: 180px;
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+        .vocab-column h4 {
+            text-align: center;
+            color: #2f241a;
+            background: #d4bea0;
+            padding: 0.2rem;
+            border-radius: 30px;
+            font-weight: normal;
+            letter-spacing: 1px;
+            border: 1px solid #8a7a62;
+        }
+        .vocab-item {
+            background: #fcf3e0;
+            padding: 0.6rem 0.8rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            border: 2px solid #b8a080;
+            cursor: pointer;
+            user-select: none;
+            transition: 0.2s;
+            font-weight: bold;
+            color: #2f241a;
+            text-align: center;
+            min-height: 44px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .vocab-item:hover {
+            transform: scale(1.02);
+            border-color: #8a7a62;
+        }
+        .vocab-item.selected {
+            border-color: #b8935a;
+            background: #f5e6c8;
+            box-shadow: 0 0 0 3px #b8935a;
+        }
+        .vocab-item.matched {
+            background: #a8c89a;
+            border-color: #2d5a1a;
+            cursor: default;
+            pointer-events: none;
+        }
+        .vocab-item .example {
+            display: none;
+            font-size: 0.75rem;
+            font-weight: normal;
+            color: #1a3a1a;
+            background: #dcedc0;
+            padding: 0.2rem 0.5rem;
+            border-radius: 8px;
+            margin-top: 4px;
+            border-left: 3px solid #2d5a1a;
+            width: 100%;
+        }
+        .vocab-item.matched .example {
+            display: block;
+        }
+        .vocab-item.error {
+            background: #f0c0b0 !important;
+            border-color: #9a4a3a !important;
+            transition: 0.15s;
+        }
+
+        /* ТЕКСТ – карточки реплик */
+        .board-text {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            margin: 1.5rem 0;
+        }
+        .speech-card {
+            background: #fdf8ee;
+            padding: 0.8rem 1.2rem;
+            border-radius: 12px 12px 12px 4px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3), inset 0 0 0 2px #f5e6c8;
+            border-left: 6px solid #b8935a;
+            position: relative;
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            color: #1e1a14;
+            transition: 0.2s;
+        }
+        .speech-card::before {
+            content: "📌";
+            position: absolute;
+            top: -8px;
+            left: -8px;
+            font-size: 1.8rem;
+            transform: rotate(-20deg);
+            filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3));
+        }
+        .speech-card .speaker {
+            font-weight: bold;
+            color: #8a3a2a;
+            display: block;
+            margin-bottom: 0.2rem;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+        }
+        .speech-card .speaker::before {
+            content: "⚜️ ";
+        }
+
+        /* COLOCACIONES + свои примеры */
+        .colloc-group {
+            background: rgba(200,180,150,0.3);
+            padding: 1.5rem;
+            border-radius: 20px;
+            backdrop-filter: blur(2px);
+            border: 2px solid #8a7a62;
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+        .colloc-row {
+            background: #fcf3e0;
+            padding: 0.8rem 1.2rem;
+            border-radius: 16px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+            border: 1px solid #b8a080;
+            transition: 0.2s;
+        }
+        .colloc-row .colloc-main {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem 1rem;
+        }
+        .colloc-row .left-part {
+            font-weight: bold;
+            color: #2f241a;
+            min-width: 120px;
+        }
+        .colloc-row select {
+            padding: 0.3rem 0.8rem;
+            border-radius: 30px;
+            border: 2px solid #b8a080;
+            background: #fef9f0;
+            font-family: inherit;
+            font-size: 0.95rem;
+            cursor: pointer;
+            min-width: 180px;
+        }
+        .colloc-row select:focus {
+            outline: none;
+            border-color: #5a7a4a;
+            box-shadow: 0 0 8px rgba(90,122,74,0.3);
+        }
+        .colloc-row .result-icon {
+            font-size: 1.2rem;
+            margin-left: 0.3rem;
+        }
+        .colloc-row.correct {
+            border-color: #5a7a4a;
+            background: #e0f0d0;
+        }
+        .colloc-row.wrong {
+            border-color: #9a5a4a;
+            background: #f0d0c0;
+        }
+        .colloc-row .mi-ejemplo {
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .colloc-row .mi-ejemplo label {
+            font-size: 0.9rem;
+            color: #3d3228;
+            font-weight: 600;
+        }
+        .colloc-row .mi-ejemplo input {
+            flex: 1;
+            min-width: 200px;
+            padding: 0.3rem 0.6rem;
+            border-radius: 20px;
+            border: 2px solid #b8a080;
+            background: #fef9f0;
+            font-family: inherit;
+            font-size: 0.9rem;
+        }
+        .colloc-row .mi-ejemplo input:focus {
+            outline: none;
+            border-color: #5a7a4a;
+        }
+
+        /* BUTTONS */
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin: 1.2rem 0 0.5rem;
+        }
+        .btn {
+            background: #3d3228;
+            border: none;
+            color: #f5e6c8;
+            padding: 0.5rem 2rem;
+            border-radius: 40px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+            border: 1px solid #6a5a4a;
+            letter-spacing: 1px;
+            font-family: inherit;
+        }
+        .btn:hover {
+            background: #5a4a3a;
+            transform: scale(1.02);
+            border-color: #b8935a;
+        }
+        .btn-show {
+            background: #5a4a3a;
+        }
+        .btn-show:hover {
+            background: #7a6a5a;
+        }
+        .keys-container {
+            background: #fcf3e0;
+            padding: 1rem 1.5rem;
+            border-radius: 16px;
+            border-left: 6px solid #b8935a;
+            margin-top: 1rem;
+            display: none;
+            color: #2f241a;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        .keys-container.show { display: block; }
+        .keys-container .key-item {
+            padding: 0.2rem 0;
+            border-bottom: 1px dashed #b8a080;
+        }
+        .keys-container .key-item:last-child { border-bottom: none; }
+
+        @media (max-width: 700px) {
+            .container { padding: 1rem; }
+            .vocab-area { flex-direction: column; align-items: stretch; }
+            .vocab-column { flex: 1; }
+            h1 { font-size: 2rem; }
+            .speech-card { font-size: 0.9rem; padding: 0.6rem; }
+            .colloc-row .colloc-main { flex-direction: column; align-items: stretch; }
+            .colloc-row select { min-width: 100%; }
+            .colloc-row .mi-ejemplo { flex-direction: column; align-items: stretch; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <h1>🔍 El Inspector</h1>
+    <div style="text-align:center;"><span class="subtitle">Capítulo 3 – Interrogatorio</span></div>
+
+    <!-- ========== 1. VOCABULARIO – СОЕДИНЕНИЕ КЛИКОМ ========== -->
+    <div class="section-title"><span>📚</span> Vocabulario clave</div>
+    <p style="color:#2f241a; background:rgba(255,235,200,0.5); padding:0.3rem 1rem; border-radius:30px; display:inline-block;">
+        Haz clic en una palabra española, luego en su traducción rusa.
+    </p>
+    <div class="vocab-area" id="vocabArea">
+        <div class="vocab-column" id="esColumn">
+            <h4>Español</h4>
+        </div>
+        <div class="vocab-column" id="ruColumn">
+            <h4>Русский</h4>
+        </div>
+    </div>
+    <div class="btn-group">
+        <button class="btn" onclick="checkVocabStatus()">Comprobar</button>
+        <button class="btn btn-show" onclick="showVocabKeys()">Mostrar traducciones</button>
+    </div>
+    <div class="keys-container" id="vocabKeys"></div>
+
+    <hr style="border:1px dashed #8a7a62; margin:2rem 0;">
+
+    <!-- ========== 2. TEXTO – КАРТОЧКИ РЕПЛИК ========== -->
+    <div class="section-title"><span>📜</span> El interrogatorio</div>
+    <div class="board-text" id="boardText">
+        <!-- заполняется JS -->
+    </div>
+
+    <hr style="border:1px dashed #8a7a62; margin:2rem 0;">
+
+    <!-- ========== 3. COLOCACIONES + СВОИ ПРИМЕРЫ ========== -->
+    <div class="section-title"><span>🧩</span> Forma combinaciones lógicas</div>
+    <p style="color:#2f241a; background:rgba(255,235,200,0.5); padding:0.3rem 1rem; border-radius:30px; display:inline-block;">
+        Elige la continuación correcta para cada verbo y escribe tu propio ejemplo.
+    </p>
+    <div class="colloc-group" id="collocGroup">
+        <!-- заполняется JS -->
+    </div>
+    <div class="btn-group">
+        <button class="btn" onclick="checkCollocations()">Comprobar</button>
+        <button class="btn btn-show" onclick="showCollocKeys()">Mostrar respuestas</button>
+    </div>
+    <div class="keys-container" id="collocKeys"></div>
+
+    <div style="text-align:right; margin-top:1.5rem; font-size:2rem; opacity:0.4;">📌</div>
+</div>
+
+<script>
+    // ============================================================
+    // 1. VOCAB – СОЕДИНЕНИЕ ПО КЛИКУ
+    // ============================================================
+    const vocabData = [
+        { es: "interrogar", ru: "допрашивать", example: "El Inspector interrogó a Ricardo Martínez." },
+        { es: "afirmar", ru: "утверждать", example: "Los vecinos afirman que usted mató a su esposa." },
+        { es: "matar", ru: "убивать", example: "¿Usted mató a su esposa?" },
+        { es: "jurar", ru: "клясться", example: "Yo no la maté, lo juro." },
+        { es: "cerrar con llave", ru: "закрывать на ключ", example: "¿Cerró usted con llave la puerta?" },
+        { es: "acordarse", ru: "помнить", example: "Ya no me acuerdo de eso." },
+        { es: "alcalde", ru: "мэр", example: "Jugué a las cartas con el alcalde." },
+        { es: "director", ru: "директор", example: "El director del teatro es muy amable." },
+        { es: "perder", ru: "проигрывать", example: "Perdí un poco de dinero." },
+        { es: "ganar", ru: "выигрывать", example: "¿Ganó usted o perdió?" },
+        { es: "celebrar", ru: "прославлять", example: "La célebre modelo es famosa en todo el mundo." },
+        { es: "modelo", ru: "модель", example: "Ella es una modelo muy conocida." },
+        { es: "vecino", ru: "сосед", example: "Mis vecinos son muy ruidosos." },
+        { es: "esposa", ru: "жена", example: "Él mató a su esposa." },
+        { es: "club", ru: "клуб", example: "Fui al club a jugar a las cartas." },
+        { es: "dinero", ru: "деньги", example: "Perdí mucho dinero en el casino." }
+    ];
+
+    const esColumn = document.getElementById('esColumn');
+    const ruColumn = document.getElementById('ruColumn');
+
+    // Перемешиваем русские переводы и добавляем лишний
+    const allRu = vocabData.map(item => item.ru);
+    const extraRu = "преступник";
+    let shuffledRu = [...allRu, extraRu];
+    for (let i = shuffledRu.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffledRu[i], shuffledRu[j]] = [shuffledRu[j], shuffledRu[i]];
+    }
+
+    // Создаём плитки для испанских слов
+    vocabData.forEach((item, index) => {
+        const div = document.createElement('div');
+        div.className = 'vocab-item';
+        div.dataset.index = index;
+        div.dataset.es = item.es;
+        div.dataset.ru = item.ru;
+        div.dataset.type = 'es';
+        div.innerHTML = `<span class="word-es">${item.es}</span>
+                         <span class="example" id="ex_${index}">📖 Ejemplo: <em>${item.example}</em></span>`;
+        esColumn.appendChild(div);
+    });
+
+    // Создаём плитки для русских слов
+    shuffledRu.forEach((ruWord) => {
+        const div = document.createElement('div');
+        div.className = 'vocab-item';
+        div.textContent = ruWord;
+        div.dataset.ru = ruWord;
+        div.dataset.type = 'ru';
+        if (!allRu.includes(ruWord)) {
+            div.dataset.extra = 'true';
+        }
+        ruColumn.appendChild(div);
+    });
+
+    // Переменные для выбора
+    let selectedEs = null;
+
+    // Обработчики кликов
+    document.querySelectorAll('#esColumn .vocab-item').forEach(el => {
+        el.addEventListener('click', function() {
+            if (this.classList.contains('matched')) return;
+            // Снимаем выделение с предыдущего
+            if (selectedEs) {
+                selectedEs.classList.remove('selected');
+            }
+            this.classList.add('selected');
+            selectedEs = this;
+        });
+    });
+
+    document.querySelectorAll('#ruColumn .vocab-item').forEach(el => {
+        el.addEventListener('click', function() {
+            if (this.classList.contains('matched')) return;
+            if (!selectedEs) {
+                alert('Primero selecciona una palabra española.');
+                return;
+            }
+            // Проверяем пару
+            const esRu = selectedEs.dataset.ru;
+            const ruWord = this.dataset.ru;
+            if (esRu === ruWord && !selectedEs.classList.contains('matched')) {
+                // Правильно
+                selectedEs.classList.add('matched');
+                selectedEs.classList.remove('selected');
+                this.classList.add('matched');
+                // Показываем пример
+                const example = selectedEs.querySelector('.example');
+                if (example) example.style.display = 'block';
+                selectedEs = null;
+                checkAllMatched();
+            } else {
+                // Неправильно – красная подсветка
+                selectedEs.classList.add('error');
+                this.classList.add('error');
+                setTimeout(() => {
+                    selectedEs.classList.remove('error');
+                    this.classList.remove('error');
+                    selectedEs.classList.remove('selected');
+                    selectedEs = null;
+                }, 700);
+            }
+        });
+    });
+
+    function checkAllMatched() {
+        const allEs = document.querySelectorAll('#esColumn .vocab-item');
+        const matched = document.querySelectorAll('#esColumn .vocab-item.matched');
+        if (allEs.length === matched.length) {
+            alert('✅ ¡Perfecto! Has emparejado todas las palabras.');
+        }
+    }
+
+    function checkVocabStatus() {
+        const allEs = document.querySelectorAll('#esColumn .vocab-item');
+        const matched = document.querySelectorAll('#esColumn .vocab-item.matched');
+        if (allEs.length === matched.length) {
+            alert('✅ ¡Todo correcto!');
+        } else {
+            alert(`❌ Faltan ${allEs.length - matched.length} palabras por emparejar.`);
+        }
+    }
+
+    function showVocabKeys() {
+        const container = document.getElementById('vocabKeys');
+        if (container.classList.contains('show')) {
+            container.classList.remove('show');
+            return;
+        }
+        let html = '<strong>📌 Traducciones correctas:</strong><br>';
+        vocabData.forEach(item => {
+            html += `<div class="key-item">${item.es} → ${item.ru}</div>`;
+        });
+        container.innerHTML = html;
+        container.classList.add('show');
+    }
+
+    // ============================================================
+    // 2. ТЕКСТ
+    // ============================================================
+    const dialogData = [
+        { speaker: "Inspector", text: "Señor Martínez, los vecinos afirman que a las dos de la madrugada usted mató a su esposa." },
+        { speaker: "Sr. Martínez", text: "No, señor Inspector, yo no la maté, lo juro." },
+        { speaker: "Inspector", text: "¿A qué hora salió de su casa ayer?" },
+        { speaker: "Sr. Martínez", text: "A eso de las cinco." },
+        { speaker: "Inspector", text: "¿Cerró usted con llave la puerta?" },
+        { speaker: "Sr. Martínez", text: "Ya no me acuerdo." },
+        { speaker: "Inspector", text: "¿Adónde fue usted?" },
+        { speaker: "Sr. Martínez", text: "Bueno, como todos los sábados, fui al club y pasé allí la tarde. Cené y luego jugué a las cartas con el alcalde y el director del teatro." },
+        { speaker: "Inspector", text: "¿Ganó usted o perdió?" },
+        { speaker: "Sr. Martínez", text: "Perdí un poco de dinero, nada importante." },
+        { speaker: "Inspector", text: "¿Hasta cuándo estuvo usted en el club?" },
+        { speaker: "Sr. Martínez", text: "Estuve allí hasta las once y media, más o menos." },
+        { speaker: "Inspector", text: "¿Luego se fue usted directamente a su casa?" },
+        { speaker: "Sr. Martínez", text: "No, a las doce fui a ver a Lola Sánchez." },
+        { speaker: "Inspector", text: "¿La célebre modelo?" },
+        { speaker: "Sr. Martínez", text: "Sí, sí. Llegué a casa a eso de las tres y media de la madrugada. Abrí la puerta, apagué la luz, subí a mi cuarto y me acosté." },
+        { speaker: "Inspector", text: "¿Entró usted en el dormitorio de su esposa cuando llegó?" },
+        { speaker: "Sr. Martínez", text: "No, no, Inspector. Me fui directamente a mi cuarto." }
+    ];
+
+    const boardText = document.getElementById('boardText');
+    dialogData.forEach(block => {
+        const card = document.createElement('div');
+        card.className = 'speech-card';
+        card.innerHTML = `<span class="speaker">${block.speaker}</span> ${block.text}`;
+        boardText.appendChild(card);
+    });
+
+    // ============================================================
+    // 3. COLOCACIONES
+    // ============================================================
+    const collocPairs = [
+        { left: "interrogar", right: "al sospechoso" },
+        { left: "afirmar", right: "la verdad" },
+        { left: "matar", right: "el tiempo" },
+        { left: "jurar", right: "por Dios" },
+        { left: "cerrar con llave", right: "la puerta" },
+        { left: "acordarse", right: "de su cumpleaños" },
+        { left: "perder", right: "el tren" },
+        { left: "ganar", right: "un premio" },
+        { left: "celebrar", right: "una fiesta" }
+    ];
+
+    const rightOptions = collocPairs.map(item => item.right);
+    for (let i = rightOptions.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [rightOptions[i], rightOptions[j]] = [rightOptions[j], rightOptions[i]];
+    }
+
+    const collocGroup = document.getElementById('collocGroup');
+    collocPairs.forEach((item, index) => {
+        const row = document.createElement('div');
+        row.className = 'colloc-row';
+        row.dataset.index = index;
+        row.innerHTML = `
+            <div class="colloc-main">
+                <span class="left-part">${item.left}</span>
+                <span style="color:#6a5a4a;">+</span>
+                <select id="colloc_${index}">
+                    <option value="">— elige —</option>
+                    ${rightOptions.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
+                </select>
+                <span class="result-icon" id="collocIcon_${index}"></span>
+            </div>
+            <div class="mi-ejemplo">
+                <label>✍️ Mi ejemplo:</label>
+                <input type="text" id="ejemplo_${index}" placeholder="Escribe tu frase con este verbo...">
+            </div>
+        `;
+        collocGroup.appendChild(row);
+    });
+
+    function checkCollocations() {
+        let allCorrect = true;
+        collocPairs.forEach((item, index) => {
+            const row = document.querySelector(`.colloc-row[data-index="${index}"]`);
+            const select = document.getElementById(`colloc_${index}`);
+            const icon = document.getElementById(`collocIcon_${index}`);
+            const userChoice = select.value;
+            const correct = item.right;
+            row.classList.remove('correct', 'wrong');
+            if (userChoice === correct) {
+                row.classList.add('correct');
+                icon.textContent = '✅';
+            } else {
+                row.classList.add('wrong');
+                icon.textContent = '❌';
+                allCorrect = false;
+            }
+        });
+        if (allCorrect) {
+            alert('✅ ¡Excelente! Todas las combinaciones son correctas. Ahora escribe tus ejemplos.');
+        } else {
+            alert('❌ Algunas combinaciones no son correctas. Revisa.');
+        }
+    }
+
+    function showCollocKeys() {
+        const container = document.getElementById('collocKeys');
+        if (container.classList.contains('show')) {
+            container.classList.remove('show');
+            return;
+        }
+        let html = '<strong>📌 Combinaciones correctas:</strong><br>';
+        collocPairs.forEach(item => {
+            html += `<div class="key-item">${item.left} + ${item.right}</div>`;
+        });
+        container.innerHTML = html;
+        container.classList.add('show');
+    }
+</script>
+</body>
+</html>
