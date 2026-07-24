@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🔍 SOSPECHOSO · Tenis con paella</title>
+    <style>
+        /* ── Estilo detective ── */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Georgia', 'Courier New', serif;
+            background: #2c1810;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 25px 15px;
+        }
+        .board {
+            max-width: 1100px;
+            width: 100%;
+            background: #7c5a3a;
+            background-image: radial-gradient(ellipse at 20% 50%, rgba(60,40,20,0.3) 0%, transparent 70%),
+                              radial-gradient(ellipse at 80% 50%, rgba(60,40,20,0.3) 0%, transparent 70%),
+                              repeating-linear-gradient(45deg, rgba(0,0,0,0.03) 0px, rgba(0,0,0,0.03) 2px, transparent 2px, transparent 6px);
+            border-radius: 24px;
+            padding: 35px 25px 40px;
+            box-shadow: inset 0 0 60px rgba(0,0,0,0.7), 0 20px 60px rgba(0,0,0,0.8), 0 0 0 8px #4a3222, 0 0 0 12px #3d2a1c;
+        }
+        .board-header {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 2px dashed rgba(255,215,140,0.25);
+            margin-bottom: 25px;
+        }
+        .board-header h1 {
+            font-family: 'Courier New', monospace;
+            font-size: 2.2rem;
+            color: #f5e6c8;
+            text-shadow: 0 2px 12px rgba(0,0,0,0.7);
+            letter-spacing: 2px;
+        }
+        .board-header h1 span { color: #ff6b35; }
+        .board-header .sub {
+            font-family: 'Courier New', monospace;
+            color: #c9b089;
+            letter-spacing: 3px;
+            font-size: 0.9rem;
+        }
+        .badge {
+            display: inline-block;
+            background: #8b1a1a;
+            color: #f5e6c8;
+            padding: 4px 18px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            margin-top: 8px;
+            border: 1px solid #b55a3a;
+        }
+        /* video */
+        .video-container {
+            background: #1a0e08;
+            border-radius: 16px;
+            padding: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.6);
+            border: 2px solid #6a4a3a;
+        }
+        .video-container iframe {
+            width: 100%;
+            height: 360px;
+            border: none;
+            border-radius: 10px;
+            display: block;
+        }
+        .video-note {
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #f5e6c8;
+            background: rgba(0,0,0,0.7);
+            padding: 10px 20px;
+            border-radius: 30px;
+            display: inline-block;
+            margin-top: 10px;
+            border: 2px solid #ffb347;
+            text-shadow: 0 0 8px rgba(255,180,60,0.3);
+        }
+        .video-note strong { color: #ffb347; }
+        .video-note .ru {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: normal;
+            color: #d4c4a8;
+            margin-top: 4px;
+        }
+        /* transcripción */
+        .transcript-container {
+            margin-top: 15px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 12px;
+            padding: 10px;
+            border: 1px solid #6a4a3a;
+        }
+        .transcript-text {
+            background: #fcf3e0;
+            color: #2d1a0e;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-top: 10px;
+            display: none;
+        }
+        .transcript-text.visible {
+            display: block;
+        }
+        .btn-transcript {
+            font-family: 'Courier New', monospace;
+            background: #3d1f0e;
+            color: #f5e6c8;
+            border: 2px solid #6a3d2a;
+            padding: 6px 18px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .btn-transcript:hover {
+            background: #5a2d1a;
+        }
+
+        /* Cards */
+        .case-card {
+            background: #fcf3e0;
+            background-image: linear-gradient(180deg, rgba(255,248,230,0.5) 0%, transparent 100%);
+            border-radius: 4px 20px 4px 20px;
+            padding: 20px 18px 18px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.3) inset, 2px 3px 0 rgba(0,0,0,0.1);
+            border: 1px solid #dac09a;
+            transition: transform 0.2s;
+            margin-bottom: 25px;
+        }
+        .case-card:hover { transform: scale(1.01) rotate(0.2deg); }
+        .case-card h2 {
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            color: #5a2d1a;
+            background: #e8d5b8;
+            display: inline-block;
+            padding: 2px 16px;
+            border-radius: 30px;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            border: 1px solid #c9b089;
+        }
+        .case-card p {
+            color: #2d1a0e;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 8px;
+        }
+
+        /* ── Dossier (carpeta de detective) ── */
+        .folder {
+            position: relative;
+            background: #e8d5b8;
+            border-radius: 8px 8px 0 0;
+            padding: 10px 15px 15px;
+            margin-top: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            border: 1px solid #b5956a;
+            border-bottom: 3px solid #a08060;
+        }
+        .folder::before {
+            content: '📁 EXPEDIENTE Nº 001';
+            position: absolute;
+            top: -18px;
+            left: 20px;
+            background: #5a2d1a;
+            color: #f5e6c8;
+            padding: 2px 16px;
+            border-radius: 30px 30px 0 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            border: 1px solid #8b6b4a;
+            border-bottom: none;
+        }
+        .folder .folder-tabs {
+            display: flex;
+            gap: 2px;
+            margin-top: 8px;
+            margin-bottom: 10px;
+        }
+        .folder .folder-tabs span {
+            background: #c9b089;
+            padding: 2px 14px;
+            border-radius: 8px 8px 0 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.65rem;
+            color: #2d1a0e;
+            border: 1px solid #b5956a;
+            border-bottom: none;
+        }
+        .folder .folder-tabs span.active {
+            background: #fcf3e0;
+            font-weight: bold;
+        }
+        .dossier-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: 'Georgia', serif;
+            font-size: 0.95rem;
+            background: #fcf3e0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .dossier-table td {
+            padding: 8px 12px;
+            border: 1px solid #c9b089;
+            vertical-align: middle;
+        }
+        .dossier-table td:first-child {
+            font-weight: bold;
+            background: #e8d5b8;
+            width: 30%;
+            color: #5a2d1a;
+        }
+        .dossier-table input[type="text"] {
+            width: 100%;
+            padding: 4px 8px;
+            border: 2px solid #c9b089;
+            border-radius: 4px;
+            background: #fffcf5;
+            font-family: 'Georgia', serif;
+            font-size: 0.9rem;
+            transition: border-color 0.3s, background 0.3s;
+        }
+        .dossier-table input.correct {
+            border-color: #2d7d3a;
+            background: #e6f5e6;
+        }
+        .dossier-table input.incorrect {
+            border-color: #b31b1b;
+            background: #f5e6e6;
+        }
+
+        /* Tabla de horario (Ej.2) */
+        .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: 'Georgia', serif;
+            font-size: 0.95rem;
+            background: #fcf3e0;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        .schedule-table th {
+            background: #5a2d1a;
+            color: #f5e6c8;
+            padding: 10px 6px;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 1px;
+            border: 1px solid #4a3222;
+        }
+        .schedule-table td {
+            padding: 6px 4px;
+            border: 1px solid #c9b089;
+            text-align: center;
+            vertical-align: middle;
+        }
+        .schedule-table td:first-child {
+            font-weight: bold;
+            background: #e8d5b8;
+            width: 12%;
+        }
+        .schedule-table input[type="text"] {
+            width: 100%;
+            min-width: 60px;
+            padding: 4px 6px;
+            border: 2px solid #c9b089;
+            border-radius: 4px;
+            background: #fffcf5;
+            font-family: 'Georgia', serif;
+            font-size: 0.85rem;
+            transition: border-color 0.3s, background 0.3s;
+        }
+        .schedule-table input.correct {
+            border-color: #2d7d3a;
+            background: #e6f5e6;
+        }
+        .schedule-table input.incorrect {
+            border-color: #b31b1b;
+            background: #f5e6e6;
+        }
+
+        /* Ej.3: Verdadero/Falso con radios y botón de verificar */
+        .vf-group {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .vf-option {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 0.9rem;
+            color: #2d1a0e;
+        }
+        .vf-option input[type="radio"] {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #8b6b4a;
+            border-radius: 50%;
+            background: #fffcf5;
+            transition: all 0.2s;
+            cursor: pointer;
+            position: relative;
+        }
+        .vf-option input[type="radio"]:checked {
+            border-color: #2d7d3a;
+            background: #2d7d3a;
+            box-shadow: inset 0 0 0 4px #fffcf5;
+        }
+        .vf-option input[type="radio"]:checked + span {
+            color: #2d7d3a;
+        }
+        .vf-option input[type="radio"]:focus {
+            outline: 2px solid #8b1a1a;
+        }
+        .vf-option .v { color: #2d7d3a; }
+        .vf-option .f { color: #b31b1b; }
+
+        /* Estilos para el resultado de la verificación en Ej.3 */
+        .vf-group.correct-answer {
+            border: 2px solid #2d7d3a;
+            border-radius: 6px;
+            padding: 2px 6px;
+            background: #e6f5e6;
+        }
+        .vf-group.incorrect-answer {
+            border: 2px solid #b31b1b;
+            border-radius: 6px;
+            padding: 2px 6px;
+            background: #f5e6e6;
+        }
+        .vf-group .result-icon {
+            margin-left: 6px;
+            font-size: 1.1rem;
+        }
+
+        .sentence {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 5px;
+            font-size: 0.9rem;
+            color: #2d1a0e;
+            padding: 6px 0;
+            border-bottom: 1px dashed rgba(200,170,130,0.3);
+        }
+        .sentence .num {
+            font-family: 'Courier New', monospace;
+            font-size: 0.7rem;
+            color: #8b6b4a;
+            width: 22px;
+            text-align: right;
+            font-weight: bold;
+        }
+
+        /* Botones */
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 14px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            font-family: 'Courier New', monospace;
+            background: #3d1f0e;
+            color: #f5e6c8;
+            border: none;
+            padding: 6px 18px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            border: 1px solid #6a3d2a;
+            flex: 1;
+        }
+        .btn:hover { background: #5a2d1a; transform: scale(1.02); }
+        .btn:active { transform: scale(0.97); }
+        .btn.revealed { background: #2d5a2a; border-color: #4a8a3a; }
+        .btn-reset {
+            background: #4a3222;
+            color: #c9b089;
+            border-color: #6a4a3a;
+            flex: 0.5;
+        }
+        .btn-reset:hover { background: #5a3a2a; color: #f5e6c8; }
+        .btn-check {
+            background: #2d5a2a;
+            border-color: #4a8a3a;
+        }
+        .btn-check:hover { background: #3d7a3a; }
+
+        .pin {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background: radial-gradient(circle at 40% 35%, #ff7a4a, #b31b1b);
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+            margin-right: 6px;
+        }
+        .footer {
+            text-align: center;
+            color: #c9b089;
+            font-size: 0.65rem;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 2px;
+            border-top: 1px solid rgba(200,170,130,0.15);
+            padding-top: 20px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 750px) {
+            .video-container iframe { height: 240px; }
+            .board-header h1 { font-size: 1.6rem; }
+            .video-note { font-size: 0.95rem; }
+            .schedule-table input { font-size: 0.75rem; }
+            .dossier-table input { font-size: 0.8rem; }
+        }
+        @media (max-width: 480px) {
+            .board { padding: 15px 10px; }
+            .sentence { font-size: 0.8rem; }
+            .vf-option { font-size: 0.8rem; }
+            .btn { font-size: 0.65rem; padding: 4px 12px; }
+        }
+    </style>
+</head>
+<body>
+<div class="board">
+
+    <header class="board-header">
+        <h1>🔍 <span>SOSPECHOSO</span> · TENIS CON PAELLA</h1>
+        <div class="sub">EXPEDIENTE · COMPRENSIÓN LECTORA</div>
+        <div class="badge">📹 VIDEO · ARGENTINO 🇦🇷 + MEXICANO 🇲🇽</div>
+    </header>
+
+    <!-- Video con NUEVA URL -->
+    <div class="video-container">
+        <iframe src="https://drive.google.com/file/d/1aHqSTSGd9W51t1v_4_Mo0_6_EyFAyr2I/preview" allowfullscreen></iframe>
+        <div class="video-note">
+            <strong>🎙 Nota:</strong> Primero habla un <strong>argentino</strong>, después la misma información la dice un <strong>mexicano</strong>.
+            <span class="ru">🇷🇺 Сначала говорит <strong>аргентинец</strong>, затем ту же информацию произносит <strong>мексиканец</strong>.</span>
+        </div>
+        <!-- Transcripción -->
+        <div class="transcript-container">
+            <button class="btn-transcript" id="toggleTranscript">📄 Mostrar transcripción</button>
+            <div id="transcriptText" class="transcript-text">
+                <strong>Transcripción:</strong><br>
+                Me llamo Rafael Castillo Ruiz, tengo 21 años. Vivo en Madrid. Soy universitario, estudio Informática. Acabo de terminar el segundo semestre: el viernes pasado aprobé mi último examen. Saqué sobresaliente. Lo celebramos con una fiesta que duró hasta las cuatro de la madrugada, así que el sábado me levanté muy tarde, a eso de las doce. Almorcé a las dos y media. Después del almuerzo me eché la siesta. A las cinco llamé por teléfono a mi amigo. Le invité a jugar al tenis. Llegué al club de tenis a las seis y media. Jugamos un partido. Jugué muy bien y gané. Me cansé mucho. Álvaro, mi amigo, me invitó a cenar (el que pierde, paga). De primero tomamos una ensalada riquísima, de segundo, yo tomé una paella marinera, Álvaro tomó callos a la madrileña. Y de postre, flan y sandía. La cena nos gustó mucho. Llegué a casa a eso de las doce.
+            </div>
+        </div>
+    </div>
+
+    <!-- Ejercicio 1: Dossier (carpeta) -->
+    <div class="case-card">
+        <h2><span class="pin"></span> Ej. 1 – Dossier personal</h2>
+        <p>Completa los datos de Rafael Castillo Ruiz (como en un expediente).</p>
+        <div class="folder">
+            <div class="folder-tabs">
+                <span class="active">Datos</span>
+                <span>Alibi</span>
+                <span>Pruebas</span>
+            </div>
+            <table class="dossier-table" id="ex1-table">
+                <tbody id="ex1-body">
+                    <!-- se llena con JS -->
+                </tbody>
+            </table>
+        </div>
+        <div class="btn-group">
+            <button class="btn" data-case="1">🔍 Mostrar respuestas</button>
+            <button class="btn btn-reset" data-case="1">⟳ Reiniciar</button>
+        </div>
+    </div>
+
+    <!-- Ejercicio 2: Horario (tabla) -->
+    <div class="case-card">
+        <h2><span class="pin"></span> Ej. 2 – Actividades (viernes y sábado)</h2>
+        <p>Escribe lo que hizo Rafael cada día (mañana, tarde, noche).</p>
+        <table class="schedule-table" id="ex2-table">
+            <thead>
+                <tr><th>Día</th><th>Mañana</th><th>Tarde</th><th>Noche</th></tr>
+            </thead>
+            <tbody id="ex2-body">
+                <!-- se llena con JS -->
+            </tbody>
+        </table>
+        <div class="btn-group">
+            <button class="btn" data-case="2">🔍 Mostrar respuestas</button>
+            <button class="btn btn-reset" data-case="2">⟳ Reiniciar</button>
+        </div>
+    </div>
+
+    <!-- Ejercicio 3: Verdadero/Falso con botón de verificar -->
+    <div class="case-card">
+        <h2><span class="pin"></span> Ej. 3 – Verdadero (V) o Falso (F)</h2>
+        <p>Selecciona V o F para cada afirmación y pulsa <strong>«Verificar»</strong> para comprobar.</p>
+        <div class="exercise-list" id="ex3-list"></div>
+        <div class="btn-group">
+            <button class="btn btn-check" id="checkEx3">✅ Verificar respuestas</button>
+            <button class="btn" data-case="3">🔍 Mostrar respuestas</button>
+            <button class="btn btn-reset" data-case="3">⟳ Reiniciar</button>
+        </div>
+    </div>
+
+    <div class="footer">🕵️‍♂️ EXPEDIENTE CERRADO · TODAS LAS PISTAS SON VERIFICABLES</div>
+</div>
+
+<script>
+    // ──────────────────────────────────────────────────────────────
+    //  DATOS (con múltiples respuestas válidas)
+    // ──────────────────────────────────────────────────────────────
+
+    const ex1Data = [
+        { label: 'Nombre completo', answers: ['Rafael Castillo Ruiz', 'Rafael Castillo', 'rafael castillo ruiz', 'rafael castillo'] },
+        { label: 'Edad', answers: ['21 años', '21', 'veintiún años', 'veintiuno'] },
+        { label: 'Estudia / trabaja', answers: ['Estudia Informática', 'estudia informática', 'informática', 'estudia informatica', 'informatica'] },
+        { label: 'Ciudad', answers: ['Madrid', 'madrid'] }
+    ];
+
+    const ex2Data = [
+        { dia: 'Viernes', partes: [
+            ['aprobó el examen (sobresaliente)', 'aprobó el examen', 'examen', 'aprobó'],
+            ['celebró con una fiesta (hasta las 4)', 'fiesta', 'celebró'],
+            ['— (fiesta)', 'fiesta', 'celebró']
+        ]},
+        { dia: 'Sábado', partes: [
+            ['se levantó a las doce', 'se levantó a las 12', 'levantó a las doce', 'levantó a las 12'],
+            ['almorzó a las 2:30, siesta', 'almorzó a las 2:30', 'almorzó y siesta', 'almorzó, siesta'],
+            ['llamó a Álvaro, jugó tenis, cenó con Álvaro', 'llamó a Álvaro, jugó tenis', 'tenis, cena', 'jugó tenis']
+        ]}
+    ];
+
+    // Respuestas correctas según el texto
+    const ex3Data = [
+        { texto: 'Rafael llegó al club a las seis y media.', answer: 'V' },
+        { texto: 'Rafael jugó muy bien.', answer: 'V' },
+        { texto: 'Después del almuerzo Rafael estudió un rato.', answer: 'F' },
+        { texto: 'El sábado Rafael se levantó a las once.', answer: 'F' },
+        { texto: 'De segundo, Álvaro tomó una paella marinera.', answer: 'F' },
+        { texto: 'Rafael aprobó su último examen el martes pasado.', answer: 'F' },
+        { texto: 'Álvaro invitó a Rafael al club de tenis.', answer: 'F' },
+        { texto: 'De primero, tomaron flan y sandía.', answer: 'F' },
+        { texto: 'Álvaro tomó callos a la madrileña.', answer: 'V' }
+    ];
+
+    // ──────────────────────────────────────────────────────────────
+    //  FUNCIONES AUXILIARES
+    // ──────────────────────────────────────────────────────────────
+
+    function normalize(s) {
+        return s.toLowerCase().replace(/\s+/g, ' ').trim();
+    }
+
+    function isValidInput(value, validAnswers) {
+        const norm = normalize(value);
+        return validAnswers.some(a => normalize(a) === norm);
+    }
+
+    // ──────────────────────────────────────────────────────────────
+    //  RENDER
+    // ──────────────────────────────────────────────────────────────
+
+    function renderEx1() {
+        const tbody = document.getElementById('ex1-body');
+        tbody.innerHTML = '';
+        ex1Data.forEach((item, idx) => {
+            const tr = document.createElement('tr');
+            const tdLabel = document.createElement('td');
+            tdLabel.textContent = item.label;
+            const tdInput = document.createElement('td');
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.dataset.idx = idx;
+            input.dataset.case = '1';
+            input.dataset.valid = JSON.stringify(item.answers);
+            input.placeholder = '…';
+            input.autocomplete = 'off';
+            tdInput.appendChild(input);
+            tr.appendChild(tdLabel);
+            tr.appendChild(tdInput);
+            tbody.appendChild(tr);
+        });
+    }
+
+    function renderEx2() {
+        const tbody = document.getElementById('ex2-body');
+        tbody.innerHTML = '';
+        ex2Data.forEach((item, diaIdx) => {
+            const tr = document.createElement('tr');
+            const tdDia = document.createElement('td');
+            tdDia.textContent = item.dia;
+            tr.appendChild(tdDia);
+            item.partes.forEach((partAnswers, partIdx) => {
+                const td = document.createElement('td');
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.dataset.diaIdx = diaIdx;
+                input.dataset.partIdx = partIdx;
+                input.dataset.case = '2';
+                input.dataset.valid = JSON.stringify(partAnswers);
+                input.placeholder = '…';
+                input.autocomplete = 'off';
+                td.appendChild(input);
+                tr.appendChild(td);
+            });
+            tbody.appendChild(tr);
+        });
+    }
+
+    function renderEx3() {
+        const container = document.getElementById('ex3-list');
+        container.innerHTML = '';
+        ex3Data.forEach((item, idx) => {
+            const div = document.createElement('div');
+            div.className = 'sentence';
+            const num = document.createElement('span');
+            num.className = 'num';
+            num.textContent = (idx+1) + '.';
+            div.appendChild(num);
+            const text = document.createTextNode(item.texto + ' ');
+            div.appendChild(text);
+
+            const group = document.createElement('div');
+            group.className = 'vf-group';
+            group.dataset.idx = idx;
+            group.dataset.correct = item.answer;
+
+            // V
+            const labelV = document.createElement('label');
+            labelV.className = 'vf-option';
+            const radioV = document.createElement('input');
+            radioV.type = 'radio';
+            radioV.name = 'vf-' + idx;
+            radioV.value = 'V';
+            radioV.dataset.idx = idx;
+            radioV.dataset.case = '3';
+            const spanV = document.createElement('span');
+            spanV.className = 'v';
+            spanV.textContent = 'V';
+            labelV.appendChild(radioV);
+            labelV.appendChild(spanV);
+            group.appendChild(labelV);
+
+            // F
+            const labelF = document.createElement('label');
+            labelF.className = 'vf-option';
+            const radioF = document.createElement('input');
+            radioF.type = 'radio';
+            radioF.name = 'vf-' + idx;
+            radioF.value = 'F';
+            radioF.dataset.idx = idx;
+            radioF.dataset.case = '3';
+            const spanF = document.createElement('span');
+            spanF.className = 'f';
+            spanF.textContent = 'F';
+            labelF.appendChild(radioF);
+            labelF.appendChild(spanF);
+            group.appendChild(labelF);
+
+            div.appendChild(group);
+            container.appendChild(div);
+        });
+    }
+
+    // ──────────────────────────────────────────────────────────────
+    //  VALIDACIÓN EN VIVO (solo para Ej.1 y Ej.2)
+    // ──────────────────────────────────────────────────────────────
+
+    function setupLiveValidation() {
+        document.querySelectorAll('#ex1-body input[type="text"], #ex2-body input[type="text"]').forEach(el => {
+            el.addEventListener('input', function() { validateTextInput(this); });
+            el.addEventListener('change', function() { validateTextInput(this); });
+        });
+    }
+
+    function validateTextInput(el) {
+        const valid = JSON.parse(el.dataset.valid || '[]');
+        if (!valid.length) return;
+        const val = el.value.trim();
+        if (val === '') {
+            el.classList.remove('correct', 'incorrect');
+            el.style.borderColor = '';
+            el.style.background = '';
+            return;
+        }
+        if (isValidInput(val, valid)) {
+            el.classList.remove('incorrect');
+            el.classList.add('correct');
+            el.style.borderColor = '#2d7d3a';
+            el.style.background = '#e6f5e6';
+        } else {
+            el.classList.remove('correct');
+            el.classList.add('incorrect');
+            el.style.borderColor = '#b31b1b';
+            el.style.background = '#f5e6e6';
+        }
+    }
+
+    // ──────────────────────────────────────────────────────────────
+    //  VERIFICAR EJ.3 (botón)
+    // ──────────────────────────────────────────────────────────────
+
+    function checkEx3() {
+        const groups = document.querySelectorAll('#ex3-list .vf-group');
+        groups.forEach(group => {
+            const radios = group.querySelectorAll('input[type="radio"]');
+            const correct = group.dataset.correct;
+            let selected = null;
+            radios.forEach(r => { if (r.checked) selected = r.value; });
+            // Limpiar estilos previos
+            group.classList.remove('correct-answer', 'incorrect-answer');
+            const existingIcon = group.querySelector('.result-icon');
+            if (existingIcon) existingIcon.remove();
+
+            if (!selected) {
+                // No seleccionado: no hacemos nada
+                return;
+            }
+
+            const icon = document.createElement('span');
+            icon.className = 'result-icon';
+            if (selected === correct) {
+                group.classList.add('correct-answer');
+                icon.textContent = '✅';
+            } else {
+                group.classList.add('incorrect-answer');
+                icon.textContent = '❌';
+            }
+            group.appendChild(icon);
+        });
+    }
+
+    // ──────────────────────────────────────────────────────────────
+    //  REVELAR RESPUESTAS (para todos)
+    // ──────────────────────────────────────────────────────────────
+
+    function revealCase(caseId) {
+        if (caseId === 1) {
+            document.querySelectorAll('#ex1-body input').forEach(el => {
+                const valid = JSON.parse(el.dataset.valid);
+                if (valid.length) el.value = valid[0];
+                el.classList.remove('incorrect');
+                el.classList.add('correct');
+                el.style.borderColor = '#2d7d3a';
+                el.style.background = '#e6f5e6';
+            });
+        } else if (caseId === 2) {
+            document.querySelectorAll('#ex2-body input').forEach(el => {
+                const valid = JSON.parse(el.dataset.valid);
+                if (valid.length) el.value = valid[0];
+                el.classList.remove('incorrect');
+                el.classList.add('correct');
+                el.style.borderColor = '#2d7d3a';
+                el.style.background = '#e6f5e6';
+            });
+        } else if (caseId === 3) {
+            // Mostrar respuestas: seleccionamos los radios correctos y aplicamos estilo
+            const groups = document.querySelectorAll('#ex3-list .vf-group');
+            groups.forEach(group => {
+                const correct = group.dataset.correct;
+                const radios = group.querySelectorAll('input[type="radio"]');
+                radios.forEach(r => {
+                    if (r.value === correct) {
+                        r.checked = true;
+                    }
+                });
+            });
+            // Llamamos a checkEx3 para aplicar los estilos
+            checkEx3();
+        }
+        const btn = document.querySelector(`.btn[data-case="${caseId}"]`);
+        if (btn) {
+            btn.textContent = '✅ Respuestas mostradas';
+            btn.classList.add('revealed');
+        }
+    }
+
+    // ──────────────────────────────────────────────────────────────
+    //  RESET
+    // ──────────────────────────────────────────────────────────────
+
+    function resetCase(caseId) {
+        if (caseId === 1) {
+            document.querySelectorAll('#ex1-body input').forEach(el => {
+                el.value = '';
+                el.classList.remove('correct', 'incorrect');
+                el.style.borderColor = '';
+                el.style.background = '';
+            });
+        } else if (caseId === 2) {
+            document.querySelectorAll('#ex2-body input').forEach(el => {
+                el.value = '';
+                el.classList.remove('correct', 'incorrect');
+                el.style.borderColor = '';
+                el.style.background = '';
+            });
+        } else if (caseId === 3) {
+            document.querySelectorAll('#ex3-list input[type="radio"]').forEach(r => {
+                r.checked = false;
+            });
+            document.querySelectorAll('#ex3-list .vf-group').forEach(group => {
+                group.classList.remove('correct-answer', 'incorrect-answer');
+                const icon = group.querySelector('.result-icon');
+                if (icon) icon.remove();
+            });
+        }
+        const btn = document.querySelector(`.btn[data-case="${caseId}"]`);
+        if (btn) {
+            btn.textContent = '🔍 Mostrar respuestas';
+            btn.classList.remove('revealed');
+        }
+    }
+
+    // ──────────────────────────────────────────────────────────────
+    //  INIT
+    // ──────────────────────────────────────────────────────────────
+
+    document.addEventListener('DOMContentLoaded', function() {
+        renderEx1();
+        renderEx2();
+        renderEx3();
+
+        // Botones revelar
+        document.querySelectorAll('.btn[data-case]').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                const caseId = parseInt(this.dataset.case, 10);
+                if (this.classList.contains('revealed')) return;
+                revealCase(caseId);
+            });
+        });
+
+        // Botones reset
+        document.querySelectorAll('.btn-reset').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                const caseId = parseInt(this.dataset.case, 10);
+                resetCase(caseId);
+            });
+        });
+
+        // Botón verificar Ej.3
+        document.getElementById('checkEx3').addEventListener('click', function() {
+            checkEx3();
+        });
+
+        // Validación en vivo para Ej.1 y Ej.2
+        setupLiveValidation();
+
+        // Toggle transcripción
+        document.getElementById('toggleTranscript').addEventListener('click', function() {
+            const text = document.getElementById('transcriptText');
+            text.classList.toggle('visible');
+            this.textContent = text.classList.contains('visible') ? '📄 Ocultar transcripción' : '📄 Mostrar transcripción';
+        });
+    });
+</script>
+</body>
+</html>
