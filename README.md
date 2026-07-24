@@ -5,6 +5,8 @@ PalabrasCrimen https://arinakasatova1433-tech.github.io/Detective/PalabrasCrimen
 
 CrimenDesdeHaceLlevarGerAcabarDe https://arinakasatova1433-tech.github.io/Detective/CrimenDesdeHaceLlevarGerAcabarDe.html 
 
+Sospechoso https://arinakasatova1433-tech.github.io/Detective/Sospechoso1.html
+
 3 https://arinakasatova1433-tech.github.io/Detective/Detectiv3.html
 
 
