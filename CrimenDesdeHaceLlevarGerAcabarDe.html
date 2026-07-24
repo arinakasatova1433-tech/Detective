@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🔍 Junta de Investigación Gramatical</title>
+    <style>
+        /* ── Reset & Base ── */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', 'Courier New', serif;
+            background: #2c1810;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 30px 20px;
+        }
+
+        /* ── Corkboard ── */
+        .board {
+            max-width: 1400px;
+            width: 100%;
+            background: #7c5a3a;
+            background-image:
+                radial-gradient(ellipse at 20% 50%, rgba(60, 40, 20, 0.3) 0%, transparent 70%),
+                radial-gradient(ellipse at 80% 50%, rgba(60, 40, 20, 0.3) 0%, transparent 70%),
+                repeating-linear-gradient(45deg,
+                    rgba(0, 0, 0, 0.03) 0px,
+                    rgba(0, 0, 0, 0.03) 2px,
+                    transparent 2px,
+                    transparent 6px);
+            border-radius: 24px;
+            padding: 40px 30px 50px;
+            box-shadow:
+                inset 0 0 60px rgba(0, 0, 0, 0.7),
+                0 20px 60px rgba(0, 0, 0, 0.8),
+                0 0 0 8px #4a3222,
+                0 0 0 12px #3d2a1c;
+            position: relative;
+            min-height: 900px;
+        }
+
+        /* ── Board Header ── */
+        .board-header {
+            text-align: center;
+            padding-bottom: 30px;
+            border-bottom: 2px dashed rgba(255, 215, 140, 0.25);
+            margin-bottom: 35px;
+            position: relative;
+        }
+
+        .board-header h1 {
+            font-family: 'Courier New', monospace;
+            font-size: 2.4rem;
+            font-weight: 700;
+            color: #f5e6c8;
+            text-shadow: 0 2px 12px rgba(0, 0, 0, 0.7), 0 0 30px rgba(180, 100, 30, 0.15);
+            letter-spacing: 2px;
+        }
+        .board-header h1 span {
+            color: #ff6b35;
+        }
+        .board-header .subtitle {
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            color: #c9b089;
+            letter-spacing: 4px;
+            margin-top: 6px;
+            text-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
+        }
+        .board-header .badge {
+            display: inline-block;
+            background: #8b1a1a;
+            color: #f5e6c8;
+            padding: 4px 18px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+            margin-top: 10px;
+            border: 1px solid #b55a3a;
+            box-shadow: inset 0 1px 4px rgba(255, 200, 100, 0.2);
+        }
+
+        /* ── Case Grid ── */
+        .cases {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 28px;
+            align-items: start;
+        }
+
+        /* ── Each Case ── */
+        .case {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            position: relative;
+        }
+
+        /* ── Note (Paper) ── */
+        .note {
+            background: #fcf3e0;
+            background-image:
+                linear-gradient(180deg, rgba(255, 248, 230, 0.5) 0%, transparent 100%);
+            border-radius: 4px 20px 4px 20px;
+            padding: 22px 20px 20px;
+            width: 100%;
+            box-shadow:
+                0 4px 20px rgba(0, 0, 0, 0.5),
+                0 1px 0 rgba(255, 255, 255, 0.3) inset,
+                2px 3px 0 rgba(0, 0, 0, 0.1);
+            position: relative;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            border: 1px solid #dac09a;
+        }
+
+        .note:hover {
+            transform: scale(1.01) rotate(0.3deg);
+            box-shadow: 0 8px 35px rgba(0, 0, 0, 0.6);
+        }
+
+        /* rotations for organic feel */
+        .case:nth-child(1) .note:first-child {
+            transform: rotate(-0.8deg);
+        }
+        .case:nth-child(1) .note:last-child {
+            transform: rotate(0.6deg);
+        }
+        .case:nth-child(2) .note:first-child {
+            transform: rotate(0.5deg);
+        }
+        .case:nth-child(2) .note:last-child {
+            transform: rotate(-0.4deg);
+        }
+        .case:nth-child(3) .note:first-child {
+            transform: rotate(-0.3deg);
+        }
+        .case:nth-child(3) .note:last-child {
+            transform: rotate(0.7deg);
+        }
+
+        .case:nth-child(1) .note:hover {
+            transform: rotate(-0.3deg) scale(1.01);
+        }
+        .case:nth-child(2) .note:hover {
+            transform: rotate(0.2deg) scale(1.01);
+        }
+        .case:nth-child(3) .note:hover {
+            transform: rotate(0.4deg) scale(1.01);
+        }
+
+        /* ── Pin ── */
+        .pin {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 26px;
+            height: 26px;
+            background: radial-gradient(circle at 40% 35%, #ff7a4a, #b31b1b);
+            border-radius: 50%;
+            box-shadow:
+                0 2px 6px rgba(0, 0, 0, 0.6),
+                inset 0 -2px 4px rgba(0, 0, 0, 0.3),
+                inset 0 2px 6px rgba(255, 200, 100, 0.6);
+            border: 1px solid #cc5533;
+            z-index: 5;
+        }
+        .pin::after {
+            content: '';
+            position: absolute;
+            top: 4px;
+            left: 7px;
+            width: 8px;
+            height: 8px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.7) 0%, transparent 70%);
+            border-radius: 50%;
+            opacity: 0.7;
+        }
+
+        /* secondary pin (bottom note) */
+        .note.exercise .pin {
+            background: radial-gradient(circle at 40% 35%, #ffb347, #b3741a);
+            border-color: #cc8833;
+        }
+
+        /* ── Note Content ── */
+        .note h2 {
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            color: #5a2d1a;
+            background: #e8d5b8;
+            display: inline-block;
+            padding: 2px 14px;
+            border-radius: 30px;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            border: 1px solid #c9b089;
+        }
+
+        .note h3 {
+            font-family: 'Courier New', monospace;
+            font-size: 1.15rem;
+            color: #3d1f0e;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+            border-bottom: 2px dotted #c9b089;
+            padding-bottom: 6px;
+        }
+
+        .note .theory-content {
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: #2d1a0e;
+        }
+        .note .theory-content .highlight {
+            background: #f5e6c8;
+            padding: 0 4px;
+            border-radius: 3px;
+            font-weight: bold;
+            color: #8b1a1a;
+        }
+        .note .theory-content .example {
+            display: block;
+            background: #e8d5b8;
+            padding: 6px 12px;
+            border-radius: 6px;
+            margin: 6px 0;
+            font-style: italic;
+            border-left: 3px solid #8b1a1a;
+            font-size: 0.9rem;
+        }
+        .note .theory-content .example strong {
+            color: #8b1a1a;
+        }
+
+        .note.exercise h4 {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: #5a2d1a;
+            background: #dac09a;
+            display: inline-block;
+            padding: 2px 14px;
+            border-radius: 30px;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            border: 1px solid #b5956a;
+        }
+
+        /* ── Exercise Sentences ── */
+        .exercise-list {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            margin-top: 4px;
+        }
+
+        .sentence {
+            font-size: 0.92rem;
+            line-height: 1.6;
+            color: #2d1a0e;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 4px;
+            padding: 4px 6px;
+            border-radius: 4px;
+            background: rgba(255, 248, 230, 0.3);
+            border-bottom: 1px dashed rgba(200, 170, 130, 0.3);
+        }
+        .sentence .num {
+            font-family: 'Courier New', monospace;
+            font-size: 0.7rem;
+            color: #8b6b4a;
+            width: 22px;
+            text-align: right;
+            font-weight: bold;
+            margin-right: 4px;
+        }
+
+        .sentence input[type="text"],
+        .sentence select {
+            font-family: 'Georgia', serif;
+            font-size: 0.9rem;
+            padding: 3px 8px;
+            border: 2px solid #c9b089;
+            border-radius: 4px;
+            background: #fffcf5;
+            color: #2d1a0e;
+            transition: border-color 0.3s, background 0.3s;
+            min-width: 80px;
+            max-width: 140px;
+        }
+        .sentence select {
+            min-width: 100px;
+            cursor: pointer;
+        }
+        .sentence input[type="text"]:focus,
+        .sentence select:focus {
+            outline: none;
+            border-color: #8b1a1a;
+            box-shadow: 0 0 0 3px rgba(139, 26, 26, 0.15);
+        }
+        .sentence input.correct {
+            border-color: #2d7d3a;
+            background: #e6f5e6;
+        }
+        .sentence input.incorrect {
+            border-color: #b31b1b;
+            background: #f5e6e6;
+        }
+        .sentence .hint {
+            font-size: 0.75rem;
+            color: #8b6b4a;
+            font-style: italic;
+        }
+
+        /* ── Buttons ── */
+        .btn-reveal {
+            font-family: 'Courier New', monospace;
+            background: #3d1f0e;
+            color: #f5e6c8;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+            cursor: pointer;
+            margin-top: 14px;
+            transition: background 0.3s, transform 0.2s;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            border: 1px solid #6a3d2a;
+            width: 100%;
+        }
+        .btn-reveal:hover {
+            background: #5a2d1a;
+            transform: scale(1.02);
+        }
+        .btn-reveal:active {
+            transform: scale(0.97);
+        }
+        .btn-reveal.revealed {
+            background: #2d5a2a;
+            border-color: #4a8a3a;
+        }
+
+        .btn-reset {
+            font-family: 'Courier New', monospace;
+            background: #4a3222;
+            color: #c9b089;
+            border: none;
+            padding: 5px 14px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            margin-top: 6px;
+            transition: background 0.3s;
+            border: 1px solid #6a4a3a;
+            width: 100%;
+        }
+        .btn-reset:hover {
+            background: #5a3a2a;
+            color: #f5e6c8;
+        }
+
+        /* ── String (thread) ── */
+        .thread {
+            width: 2px;
+            height: 28px;
+            background: #cc2222;
+            position: relative;
+            flex-shrink: 0;
+            box-shadow: 0 0 6px rgba(200, 30, 30, 0.3);
+            margin: 0 auto;
+        }
+        .thread::before,
+        .thread::after {
+            content: '';
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #cc2222;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 0 8px rgba(200, 30, 30, 0.4);
+        }
+        .thread::before {
+            top: -3px;
+        }
+        .thread::after {
+            bottom: -3px;
+        }
+
+        /* ── Evidence tag ── */
+        .evidence-tag {
+            font-family: 'Courier New', monospace;
+            font-size: 0.55rem;
+            color: #c9b089;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 2px 10px;
+            border-radius: 10px;
+            letter-spacing: 2px;
+            border: 1px solid #6a4a3a;
+            margin-top: 2px;
+            display: inline-block;
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 1024px) {
+            .cases {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 30px;
+            }
+            .board {
+                padding: 25px 18px 35px;
+            }
+            .board-header h1 {
+                font-size: 1.8rem;
+            }
+        }
+
+        @media (max-width: 720px) {
+            .cases {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+            .board {
+                padding: 18px 12px 25px;
+                border-radius: 16px;
+            }
+            .board-header h1 {
+                font-size: 1.4rem;
+            }
+            .board-header .subtitle {
+                font-size: 0.8rem;
+                letter-spacing: 2px;
+            }
+            .note {
+                padding: 16px 14px 16px;
+            }
+            .sentence {
+                font-size: 0.85rem;
+            }
+            .sentence input[type="text"],
+            .sentence select {
+                font-size: 0.8rem;
+                min-width: 60px;
+                max-width: 110px;
+                padding: 2px 6px;
+            }
+            .thread {
+                height: 20px;
+            }
+            .note h3 {
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .board-header h1 {
+                font-size: 1.1rem;
+                letter-spacing: 0;
+            }
+            .sentence {
+                flex-wrap: wrap;
+                gap: 2px;
+            }
+            .sentence input[type="text"],
+            .sentence select {
+                min-width: 50px;
+                max-width: 90px;
+                font-size: 0.75rem;
+            }
+            .note h2 {
+                font-size: 0.75rem;
+                padding: 1px 10px;
+            }
+            .note h3 {
+                font-size: 0.85rem;
+            }
+            .note .theory-content {
+                font-size: 0.82rem;
+            }
+            .btn-reveal {
+                font-size: 0.7rem;
+                padding: 6px 14px;
+            }
+        }
+
+        /* ── Scrollbar ── */
+        ::-webkit-scrollbar {
+            width: 8px;
+            background: #2c1810;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #6a4a3a;
+            border-radius: 10px;
+            border: 1px solid #4a3222;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #8b6b4a;
+        }
+
+        /* ── Print friendly ── */
+        @media print {
+            .board {
+                box-shadow: none;
+                border: 2px solid #333;
+                background: #e8d5b8;
+            }
+            .btn-reveal,
+            .btn-reset {
+                display: none;
+            }
+            .sentence input,
+            .sentence select {
+                border: 1px solid #333;
+                background: transparent;
+            }
+            .note {
+                box-shadow: none;
+                border: 1px solid #333;
+            }
+            .pin {
+                display: none;
+            }
+            .thread {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="board">
+
+        <!-- ═══ HEADER ═══ -->
+        <header class="board-header">
+            <h1>🔍 <span>JUNTA DE INVESTIGACIÓN</span> GRAMATICAL</h1>
+            <div class="subtitle">EXPEDIENTE · LOS MISTERIOS DEL TIEMPO EN ESPAÑOL</div>
+            <div class="badge">📋 CASOS Nº 1 · 2 · 3</div>
+        </header>
+
+        <!-- ═══ CASES ═══ -->
+        <div class="cases">
+
+            <!-- ──── CASO 1 ──── -->
+            <div class="case" id="case1">
+                <div class="note theory">
+                    <div class="pin"></div>
+                    <h2>CASO Nº 1</h2>
+                    <h3>🔎 DESDE / DESDE HACE / HACE + QUE</h3>
+                    <div class="theory-content">
+                        <p>Se usan para expresar el <strong>punto de partida</strong> o la <strong>duración</strong> de una acción en el presente.</p>
+                        <div class="example">
+                            <strong>desde</strong> + punto de inicio → <em>Vivo aquí <strong>desde</strong> 1992.</em>
+                        </div>
+                        <div class="example">
+                            <strong>desde hace</strong> + tiempo → <em>Toco la guitarra <strong>desde hace</strong> tres años.</em>
+                        </div>
+                        <div class="example">
+                            <strong>hace</strong> + tiempo + <strong>que</strong> → <em><strong>Hace</strong> dos años <strong>que</strong> no lo veo.</em>
+                        </div>
+                        <p style="margin-top:6px; font-size:0.85rem; color:#5a3d2a;">
+                            ⚡ <strong>Pista:</strong> <em>desde</em> → origen · <em>desde hace</em> → duración · <em>hace … que</em> → duración con "que".
+                        </p>
+                    </div>
+                    <div style="margin-top:10px; text-align:right;">
+                        <span class="evidence-tag">📌 EVIDENCIA 1</span>
+                    </div>
+                </div>
+
+                <div class="thread"></div>
+
+                <div class="note exercise">
+                    <div class="pin"></div>
+                    <h4>🔎 EJERCICIO DE INVESTIGACIÓN</h4>
+                    <p style="font-size:0.8rem; color:#5a3d2a; margin-bottom:8px; font-style:italic;">
+                        Completa con <strong>desde</strong>, <strong>desde hace</strong> o <strong>hace</strong>.
+                    </p>
+                    <div class="exercise-list" id="ex1-list">
+                        <!-- filled by JS -->
+                    </div>
+                    <button class="btn-reveal" data-case="1">🔍 Mostrar respuestas</button>
+                    <button class="btn-reset" data-case="1">⟳ Reiniciar</button>
+                </div>
+            </div>
+
+            <!-- ──── CASO 2 ──── -->
+            <div class="case" id="case2">
+                <div class="note theory">
+                    <div class="pin"></div>
+                    <h2>CASO Nº 2</h2>
+                    <h3>🔎 LLEVAR + TIEMPO + GERUNDIO</h3>
+                    <div class="theory-content">
+                        <p>Expresa una acción que <strong>comenzó en el pasado</strong> y <strong>continúa en el presente</strong>.</p>
+                        <div class="example">
+                            <strong>llevar</strong> (conjugado) + tiempo + <strong>gerundio</strong><br>
+                            <em><strong>Llevo</strong> dos años <strong>estudiando</strong> español.</em>
+                        </div>
+                        <p style="margin-top:6px; font-size:0.85rem; color:#5a3d2a;">
+                            ⚡ <strong>Pista:</strong> equivale a <em>Estudio español desde hace dos años.</em>
+                        </p>
+                        <div style="margin-top:8px; background:#e8d5b8; padding:6px 12px; border-radius:4px; font-size:0.85rem;">
+                            <strong>Conjugación de <em>llevar</em>:</strong> llevo, llevas, lleva, llevamos, lleváis, llevan
+                        </div>
+                    </div>
+                    <div style="margin-top:10px; text-align:right;">
+                        <span class="evidence-tag">📌 EVIDENCIA 2</span>
+                    </div>
+                </div>
+
+                <div class="thread"></div>
+
+                <div class="note exercise">
+                    <div class="pin"></div>
+                    <h4>🔎 EJERCICIO DE INVESTIGACIÓN</h4>
+                    <p style="font-size:0.8rem; color:#5a3d2a; margin-bottom:8px; font-style:italic;">
+                        Escribe la forma correcta de <strong>llevar</strong> y el <strong>gerundio</strong>.
+                    </p>
+                    <div class="exercise-list" id="ex2-list">
+                        <!-- filled by JS -->
+                    </div>
+                    <button class="btn-reveal" data-case="2">🔍 Mostrar respuestas</button>
+                    <button class="btn-reset" data-case="2">⟳ Reiniciar</button>
+                </div>
+            </div>
+
+            <!-- ──── CASO 3 ──── -->
+            <div class="case" id="case3">
+                <div class="note theory">
+                    <div class="pin"></div>
+                    <h2>CASO Nº 3</h2>
+                    <h3>🔎 ACABAR DE + INFINITIVO</h3>
+                    <div class="theory-content">
+                        <p>Expresa una acción que <strong>acaba de ocurrir</strong> en el pasado inmediato.</p>
+                        <div class="example">
+                            <strong>acabar de</strong> + infinitivo<br>
+                            <em>No tengo hambre. <strong>Acabo de</strong> comer.</em> (= He comido hace poco)
+                        </div>
+                        <p style="margin-top:6px; font-size:0.85rem; color:#5a3d2a;">
+                            ⚡ <strong>Pista:</strong> indica <em>"justo ahora"</em> o <em>"hace un momento"</em>.
+                        </p>
+                        <div style="margin-top:8px; background:#e8d5b8; padding:6px 12px; border-radius:4px; font-size:0.85rem;">
+                            <strong>Conjugación de <em>acabar</em>:</strong> acabo, acabas, acaba, acabamos, acabáis, acaban
+                        </div>
+                    </div>
+                    <div style="margin-top:10px; text-align:right;">
+                        <span class="evidence-tag">📌 EVIDENCIA 3</span>
+                    </div>
+                </div>
+
+                <div class="thread"></div>
+
+                <div class="note exercise">
+                    <div class="pin"></div>
+                    <h4>🔎 EJERCICIO DE INVESTIGACIÓN</h4>
+                    <p style="font-size:0.8rem; color:#5a3d2a; margin-bottom:8px; font-style:italic;">
+                        Escribe la construcción completa con <strong>acabar de</strong> + infinitivo.
+                    </p>
+                    <div class="exercise-list" id="ex3-list">
+                        <!-- filled by JS -->
+                    </div>
+                    <button class="btn-reveal" data-case="3">🔍 Mostrar respuestas</button>
+                    <button class="btn-reset" data-case="3">⟳ Reiniciar</button>
+                </div>
+            </div>
+
+        </div><!-- /cases -->
+
+        <div style="text-align:center; margin-top:40px; color:#c9b089; font-size:0.7rem; font-family:'Courier New',monospace; letter-spacing:3px; border-top:1px solid rgba(200,170,130,0.15); padding-top:18px;">
+            🕵️‍♂️ EXPEDIENTE CERRADO · TODOS LOS DERECHOS DE INVESTIGACIÓN RESERVADOS
+        </div>
+
+    </div><!-- /board -->
+
+    <script>
+        // ──────────────────────────────────────────────────────────────
+        //  DATA  (actualizado con todas las personas)
+        // ──────────────────────────────────────────────────────────────
+
+        const caseData = {
+
+            // ── Caso 1: desde / desde hace / hace (sin cambios) ──
+            1: {
+                sentences: [
+                    { parts: ['', ' 2010 vivo en Madrid.'], answers: ['desde'] },
+                    { parts: ['', ' dos años que no veo a mi hermana.'], answers: ['hace'] },
+                    { parts: ['¿', ' cuándo trabajas aquí?'], answers: ['desde'] },
+                    { parts: ['Estudio francés ', ' tres años.'], answers: ['desde hace'] },
+                    { parts: ['', ' que llegué, no he parado de trabajar.'], answers: ['desde'] },
+                    { parts: ['Vivo en esta casa ', ' 2015.'], answers: ['desde'] },
+                    { parts: ['No como carne ', ' un año.'], answers: ['desde hace'] },
+                    { parts: ['¿', ' cuánto tiempo esperas?'], answers: ['desde hace'] },
+                ],
+                options: ['desde', 'desde hace', 'hace'],
+                type: 'select'
+            },
+
+            // ── Caso 2: llevar + gerundio (todas las personas) ──
+            2: {
+                sentences: [
+                    { parts: ['(Yo) ', ' dos años ', ' (estudiar) español.'], answers: ['llevo', 'estudiando'] },
+                    { parts: ['(Tú) ', ' tres meses ', ' (vivir) en Madrid.'], answers: ['llevas', 'viviendo'] },
+                    { parts: ['(Él) ', ' una hora ', ' (esperar) el autobús.'], answers: ['lleva', 'esperando'] },
+                    { parts: ['(Nosotros) ', ' cinco años ', ' (trabajar) aquí.'], answers: ['llevamos', 'trabajando'] },
+                    { parts: ['(Vosotros) ', ' diez minutos ', ' (hablar) por teléfono.'], answers: ['lleváis', 'hablando'] },
+                    { parts: ['(Ellos) ', ' toda la vida ', ' (conocer) a su amigo.'], answers: ['llevan', 'conociendo'] },
+                    { parts: ['(Ella) ', ' seis meses ', ' (aprender) a tocar guitarra.'], answers: ['lleva', 'aprendiendo'] },
+                    { parts: ['(Ustedes) ', ' cuarenta minutos ', ' (conducir).'], answers: ['llevan', 'conduciendo'] },
+                ],
+                type: 'text'
+            },
+
+            // ── Caso 3: acabar de + infinitivo (todas las personas) ──
+            3: {
+                sentences: [
+                    { parts: ['(Yo) No tengo hambre. ', ' (comer).'], answers: ['acabo de comer'] },
+                    { parts: ['(Tú) ', ' (llegar) a casa.'], answers: ['acabas de llegar'] },
+                    { parts: ['(Él) ', ' (terminar) el trabajo.'], answers: ['acaba de terminar'] },
+                    { parts: ['(Nosotros) ', ' (leer) el libro.'], answers: ['acabamos de leer'] },
+                    { parts: ['(Vosotros) ', ' (ver) la película.'], answers: ['acabáis de ver'] },
+                    { parts: ['(Ellas) ', ' (hablar) con su madre.'], answers: ['acaban de hablar'] },
+                    { parts: ['(Usted) ', ' (empezar) la clase.'], answers: ['acaba de empezar'] },
+                    { parts: ['(Ellos) ', ' (salir) de casa.'], answers: ['acaban de salir'] },
+                ],
+                type: 'text'
+            }
+        };
+
+        // ──────────────────────────────────────────────────────────────
+        //  RENDER
+        // ──────────────────────────────────────────────────────────────
+
+        function renderCase(caseId) {
+            const data = caseData[caseId];
+            const container = document.getElementById('ex' + caseId + '-list');
+            if (!container) return;
+
+            container.innerHTML = '';
+
+            data.sentences.forEach((s, idx) => {
+                const div = document.createElement('div');
+                div.className = 'sentence';
+                div.dataset.idx = idx;
+
+                const numSpan = document.createElement('span');
+                numSpan.className = 'num';
+                numSpan.textContent = (idx + 1) + '.';
+                div.appendChild(numSpan);
+
+                if (data.type === 'select') {
+                    const before = s.parts[0] || '';
+                    const after = s.parts[1] || '';
+                    const textBefore = document.createTextNode(before);
+                    div.appendChild(textBefore);
+
+                    const select = document.createElement('select');
+                    select.dataset.idx = idx;
+                    select.dataset.case = caseId;
+                    select.dataset.answer = s.answers[0];
+                    const emptyOpt = document.createElement('option');
+                    emptyOpt.value = '';
+                    emptyOpt.textContent = '—';
+                    select.appendChild(emptyOpt);
+                    data.options.forEach(opt => {
+                        const o = document.createElement('option');
+                        o.value = opt;
+                        o.textContent = opt;
+                        select.appendChild(o);
+                    });
+                    div.appendChild(select);
+
+                    const textAfter = document.createTextNode(after);
+                    div.appendChild(textAfter);
+                } else {
+                    // text inputs
+                    const parts = s.parts;
+                    const answers = s.answers;
+
+                    parts.forEach((part, pi) => {
+                        if (part) {
+                            const textNode = document.createTextNode(part);
+                            div.appendChild(textNode);
+                        }
+                        if (pi < parts.length - 1) {
+                            const input = document.createElement('input');
+                            input.type = 'text';
+                            input.dataset.idx = idx;
+                            input.dataset.subIdx = pi;
+                            input.dataset.case = caseId;
+                            input.dataset.answer = answers[pi] || '';
+                            input.placeholder = '…';
+                            input.autocomplete = 'off';
+                            div.appendChild(input);
+                        }
+                    });
+                }
+
+                container.appendChild(div);
+            });
+        }
+
+        // ──────────────────────────────────────────────────────────────
+        //  REVEAL ANSWERS
+        // ──────────────────────────────────────────────────────────────
+
+        function revealCase(caseId) {
+            const data = caseData[caseId];
+            const container = document.getElementById('ex' + caseId + '-list');
+            if (!container) return;
+
+            const inputs = container.querySelectorAll('input, select');
+
+            inputs.forEach(el => {
+                const answer = el.dataset.answer;
+                if (!answer) return;
+
+                if (el.tagName === 'SELECT') {
+                    el.value = answer;
+                    el.style.borderColor = '#2d7d3a';
+                    el.style.background = '#e6f5e6';
+                } else if (el.tagName === 'INPUT') {
+                    el.value = answer;
+                    el.style.borderColor = '#2d7d3a';
+                    el.style.background = '#e6f5e6';
+                    el.classList.remove('incorrect');
+                    el.classList.add('correct');
+                }
+            });
+
+            const btn = document.querySelector(`.btn-reveal[data-case="${caseId}"]`);
+            if (btn) {
+                btn.textContent = '✅ Respuestas mostradas';
+                btn.classList.add('revealed');
+            }
+        }
+
+        // ──────────────────────────────────────────────────────────────
+        //  RESET
+        // ──────────────────────────────────────────────────────────────
+
+        function resetCase(caseId) {
+            const container = document.getElementById('ex' + caseId + '-list');
+            if (!container) return;
+
+            const inputs = container.querySelectorAll('input, select');
+
+            inputs.forEach(el => {
+                if (el.tagName === 'SELECT') {
+                    el.value = '';
+                    el.style.borderColor = '';
+                    el.style.background = '';
+                } else if (el.tagName === 'INPUT') {
+                    el.value = '';
+                    el.style.borderColor = '';
+                    el.style.background = '';
+                    el.classList.remove('correct', 'incorrect');
+                }
+            });
+
+            const btn = document.querySelector(`.btn-reveal[data-case="${caseId}"]`);
+            if (btn) {
+                btn.textContent = '🔍 Mostrar respuestas';
+                btn.classList.remove('revealed');
+            }
+        }
+
+        // ──────────────────────────────────────────────────────────────
+        //  INIT
+        // ──────────────────────────────────────────────────────────────
+
+        document.addEventListener('DOMContentLoaded', function() {
+            renderCase(1);
+            renderCase(2);
+            renderCase(3);
+
+            document.querySelectorAll('.btn-reveal').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    const caseId = parseInt(this.dataset.case, 10);
+                    revealCase(caseId);
+                });
+            });
+
+            document.querySelectorAll('.btn-reset').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    const caseId = parseInt(this.dataset.case, 10);
+                    resetCase(caseId);
+                });
+            });
+
+            // Live validation on change
+            document.querySelectorAll('.sentence input, .sentence select').forEach(el => {
+                el.addEventListener('change', function() {
+                    const answer = this.dataset.answer;
+                    if (!answer) return;
+                    const val = this.value.trim();
+                    if (val === '') {
+                        this.style.borderColor = '';
+                        this.style.background = '';
+                        if (this.classList) {
+                            this.classList.remove('correct', 'incorrect');
+                        }
+                        return;
+                    }
+                    let isCorrect = false;
+                    if (this.tagName === 'SELECT') {
+                        isCorrect = val === answer;
+                    } else {
+                        isCorrect = val.toLowerCase() === answer.toLowerCase();
+                    }
+                    if (isCorrect) {
+                        this.style.borderColor = '#2d7d3a';
+                        this.style.background = '#e6f5e6';
+                        if (this.classList) {
+                            this.classList.remove('incorrect');
+                            this.classList.add('correct');
+                        }
+                    } else {
+                        this.style.borderColor = '#b31b1b';
+                        this.style.background = '#f5e6e6';
+                        if (this.classList) {
+                            this.classList.remove('correct');
+                            this.classList.add('incorrect');
+                        }
+                    }
+                });
+            });
+        });
+
+        // ──────────────────────────────────────────────────────────────
+        //  Expose for console debugging (optional)
+        // ──────────────────────────────────────────────────────────────
+
+        window._grammarDetective = {
+            revealCase,
+            resetCase,
+            renderCase,
+            caseData
+        };
+    </script>
+
+</body>
+</html>
