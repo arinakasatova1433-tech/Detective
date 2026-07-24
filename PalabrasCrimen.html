@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Emparejar: Español ⇄ Русский</title>
+    <style>
+        /* ── Reset & base ── */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+            background: linear-gradient(145deg, #f7f3e9 0%, #e8e0d5 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .app {
+            max-width: 1100px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(8px);
+            border-radius: 48px;
+            padding: 30px 35px 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        /* ── header ── */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 28px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2d2a24;
+            letter-spacing: -0.3px;
+        }
+        .header h1 span {
+            background: #d4c5b2;
+            padding: 2px 14px;
+            border-radius: 40px;
+            font-size: 20px;
+            color: #3d352b;
+            margin-left: 8px;
+        }
+
+        .progress-area {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .progress-text {
+            font-weight: 600;
+            color: #4a4036;
+            background: #ede7df;
+            padding: 6px 18px;
+            border-radius: 40px;
+            font-size: 15px;
+            letter-spacing: 0.2px;
+        }
+
+        .btn-reset {
+            background: #3d352b;
+            border: none;
+            color: #f5efe8;
+            font-weight: 600;
+            font-size: 14px;
+            padding: 8px 24px;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            letter-spacing: 0.3px;
+        }
+        .btn-reset:hover {
+            background: #2b241c;
+            transform: scale(0.97);
+        }
+        .btn-reset:active {
+            transform: scale(0.93);
+        }
+
+        /* ── board ── */
+        .board {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px 40px;
+            margin-top: 8px;
+        }
+
+        .column {
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 28px;
+            padding: 18px 14px 14px;
+            min-height: 420px;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        .column-title {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #7a6e60;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 14px;
+            padding-bottom: 8px;
+            border-bottom: 2px dashed #d9cec0;
+        }
+
+        .word-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        /* ── word cards ── */
+        .word-card {
+            background: #ffffff;
+            padding: 12px 18px;
+            border-radius: 16px;
+            font-size: 17px;
+            font-weight: 500;
+            color: #2d2a24;
+            cursor: pointer;
+            transition: 0.15s ease;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+            border: 2px solid transparent;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .word-card:hover:not(.matched):not(.disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 16px -6px rgba(0, 0, 0, 0.08);
+            border-color: #cbbeb0;
+        }
+
+        .word-card.selected {
+            border-color: #b3927a;
+            background: #f3ede7;
+            box-shadow: 0 0 0 4px rgba(179, 146, 122, 0.2);
+            transform: scale(1.01);
+        }
+
+        .word-card.matched {
+            background: #e1e9d7;
+            border-color: #8aa67a;
+            opacity: 0.8;
+            cursor: default;
+            pointer-events: none;
+            color: #3d5033;
+        }
+        .word-card.matched .check {
+            display: inline-block;
+        }
+        .word-card .check {
+            display: none;
+            color: #4d7a3a;
+            font-weight: 700;
+            font-size: 18px;
+            margin-left: 8px;
+        }
+
+        .word-card.wrong {
+            animation: shake 0.35s ease;
+            border-color: #c45a5a;
+            background: #fce8e8;
+        }
+
+        .word-card.disabled {
+            opacity: 0.5;
+            cursor: default;
+            pointer-events: none;
+        }
+
+        @keyframes shake {
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+            20% {
+                transform: translateX(-8px);
+            }
+            40% {
+                transform: translateX(8px);
+            }
+            60% {
+                transform: translateX(-5px);
+            }
+            80% {
+                transform: translateX(5px);
+            }
+        }
+
+        @keyframes pop {
+            0% {
+                transform: scale(0.92);
+                opacity: 0.6;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .word-card.matched {
+            animation: pop 0.3s ease;
+        }
+
+        /* ── sentence display ── */
+        .sentence-area {
+            margin-top: 30px;
+            padding: 18px 24px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            min-height: 80px;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px 14px;
+        }
+
+        .sentence-area .label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #8a7e70;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-right: 6px;
+        }
+
+        .sentence-area .sentence-text {
+            font-size: 19px;
+            font-weight: 500;
+            color: #2d2a24;
+            background: #f5efe8;
+            padding: 6px 20px;
+            border-radius: 40px;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .sentence-area .sentence-text .highlight-es {
+            color: #7f5f44;
+            font-weight: 700;
+        }
+
+        .sentence-area .empty-msg {
+            color: #9a8e80;
+            font-style: italic;
+            font-weight: 400;
+            font-size: 16px;
+        }
+
+        /* ── responsive ── */
+        @media (max-width: 780px) {
+            .app {
+                padding: 20px 18px 28px;
+            }
+            .board {
+                grid-template-columns: 1fr;
+                gap: 18px;
+            }
+            .header h1 {
+                font-size: 22px;
+            }
+            .word-card {
+                font-size: 15px;
+                padding: 10px 14px;
+            }
+            .sentence-area .sentence-text {
+                font-size: 16px;
+                padding: 6px 14px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .progress-area {
+                justify-content: space-between;
+            }
+            .btn-reset {
+                padding: 6px 16px;
+                font-size: 13px;
+            }
+            .word-card {
+                font-size: 14px;
+                padding: 8px 12px;
+            }
+            .sentence-area {
+                padding: 14px 16px;
+            }
+            .sentence-area .sentence-text {
+                font-size: 15px;
+                padding: 4px 12px;
+            }
+        }
+
+        /* ── scrollbar ── */
+        .word-list::-webkit-scrollbar {
+            width: 4px;
+        }
+        .word-list::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .word-list::-webkit-scrollbar-thumb {
+            background: #cbbeb0;
+            border-radius: 10px;
+        }
+
+        /* ── congrats ── */
+        .congrats {
+            text-align: center;
+            padding: 8px 0 2px;
+            font-weight: 700;
+            font-size: 20px;
+            color: #4d7a3a;
+            letter-spacing: 0.5px;
+        }
+        .congrats.hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app" id="app">
+        <!-- header -->
+        <div class="header">
+            <h1>🔗 Emparejar <span>Español ⇄ Русский</span></h1>
+            <div class="progress-area">
+                <span class="progress-text" id="progressText">0 / 19</span>
+                <button class="btn-reset" id="resetBtn">⟳ Reiniciar</button>
+            </div>
+        </div>
+
+        <!-- board -->
+        <div class="board">
+            <!-- Spanish column -->
+            <div class="column">
+                <div class="column-title">🇪🇸 Español</div>
+                <div class="word-list" id="esList"></div>
+            </div>
+            <!-- Russian column -->
+            <div class="column">
+                <div class="column-title">🇷🇺 Русский</div>
+                <div class="word-list" id="ruList"></div>
+            </div>
+        </div>
+
+        <!-- sentence area -->
+        <div class="sentence-area" id="sentenceArea">
+            <span class="label">📖 Ejemplo</span>
+            <span class="empty-msg" id="emptyMsg">Selecciona una pareja correcta para ver una frase.</span>
+            <span class="sentence-text hidden" id="sentenceText"></span>
+        </div>
+
+        <!-- congrats -->
+        <div class="congrats hidden" id="congrats">🎉 ¡Excelente! Has emparejado todas las palabras.</div>
+    </div>
+
+    <script>
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // DATA
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        const PAIRS = [{
+            es: 'El atraco',
+            ru: 'Ограбление',
+            sentence: 'El atraco ocurrió a las tres de la madrugada.'
+        }, {
+            es: 'La víctima',
+            ru: 'Жертва',
+            sentence: 'La víctima llamó a la policía.'
+        }, {
+            es: 'El cuchillo',
+            ru: 'Нож',
+            sentence: 'El ladrón usó un cuchillo para amenazar.'
+        }, {
+            es: 'La pistola',
+            ru: 'Пистолет',
+            sentence: 'La pistola estaba cargada.'
+        }, {
+            es: 'La cartera',
+            ru: 'Кошелёк',
+            sentence: 'Me robaron la cartera en el metro.'
+        }, {
+            es: 'El dinero',
+            ru: 'Деньги',
+            sentence: 'El dinero estaba en el bolsillo.'
+        }, {
+            es: 'Las tarjetas de crédito',
+            ru: 'Кредитные карты',
+            sentence: 'Las tarjetas de crédito fueron bloqueadas.'
+        }, {
+            es: 'La documentación',
+            ru: 'Документы',
+            sentence: 'La documentación estaba en la mochila.'
+        }, {
+            es: 'El pasaporte',
+            ru: 'Паспорт',
+            sentence: 'El pasaporte está en la oficina.'
+        }, {
+            es: 'El billete de autobús',
+            ru: 'Автобусный билет',
+            sentence: 'El billete de autobús cuesta dos euros.'
+        }, {
+            es: 'Tener miedo',
+            ru: 'Бояться',
+            sentence: 'Tengo miedo de los ladrones.'
+        }, {
+            es: 'Pasar miedo',
+            ru: 'Испытывать страх',
+            sentence: 'Pasé mucho miedo durante el atraco.'
+        }, {
+            es: 'Gritar',
+            ru: 'Кричать',
+            sentence: 'La víctima empezó a gritar.'
+        }, {
+            es: 'Quitar',
+            ru: 'Отбирать',
+            sentence: 'El ladrón me quitó el teléfono.'
+        }, {
+            es: 'Robar',
+            ru: 'Украсть',
+            sentence: 'Robaron el banco ayer.'
+        }, {
+            es: 'Pegar un puñetazo',
+            ru: 'Ударить кулаком',
+            sentence: 'El ladrón le pegó un puñetazo.'
+        }, {
+            es: 'Amenazar',
+            ru: 'Угрожать',
+            sentence: 'El ladrón amenazó con un cuchillo.'
+        }, {
+            es: 'Poner una denuncia',
+            ru: 'Подать заявление',
+            sentence: 'Voy a poner una denuncia.'
+        }, {
+            es: 'Detener',
+            ru: 'Задержать',
+            sentence: 'La policía detuvo al ladrón.'
+        }];
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // STATE
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        let state = {
+            // Each item: { pairId, text, matched }
+            esItems: [],
+            ruItems: [],
+            matchedCount: 0,
+            selectedId: null, // 'es-{index}' or null
+            // track which sentences have been shown
+            shownSentences: new Set(),
+        };
+
+        // DOM refs
+        const esListEl = document.getElementById('esList');
+        const ruListEl = document.getElementById('ruList');
+        const progressText = document.getElementById('progressText');
+        const sentenceText = document.getElementById('sentenceText');
+        const emptyMsg = document.getElementById('emptyMsg');
+        const sentenceArea = document.getElementById('sentenceArea');
+        const congratsEl = document.getElementById('congrats');
+        const resetBtn = document.getElementById('resetBtn');
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // HELPERS
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        function shuffle(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function buildItems(pairs, side) {
+            return pairs.map((p, idx) => ({
+                pairId: idx,
+                text: side === 'es' ? p.es : p.ru,
+                matched: false,
+            }));
+        }
+
+        function updateProgress() {
+            const total = PAIRS.length;
+            progressText.textContent = `${state.matchedCount} / ${total}`;
+            if (state.matchedCount === total) {
+                congratsEl.classList.remove('hidden');
+            } else {
+                congratsEl.classList.add('hidden');
+            }
+        }
+
+        function clearSelection() {
+            if (state.selectedId !== null) {
+                const prev = document.querySelector(`.word-card[data-id="${state.selectedId}"]`);
+                if (prev) prev.classList.remove('selected');
+                state.selectedId = null;
+            }
+        }
+
+        function showSentence(pairId) {
+            const pair = PAIRS[pairId];
+            if (!pair) return;
+            emptyMsg.classList.add('hidden');
+            sentenceText.classList.remove('hidden');
+            // highlight the spanish word in the sentence
+            const esWord = pair.es;
+            let sentenceHtml = pair.sentence;
+            // try to highlight the exact word/phrase
+            const regex = new RegExp(esWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+            if (regex.test(sentenceHtml)) {
+                sentenceHtml = sentenceHtml.replace(regex, `<span class="highlight-es">${esWord}</span>`);
+            } else {
+                // fallback: just show the sentence with the word at the end
+                sentenceHtml = `${pair.sentence}  <span class="highlight-es">(${esWord})</span>`;
+            }
+            sentenceText.innerHTML = sentenceHtml;
+            // store shown
+            state.shownSentences.add(pairId);
+        }
+
+        function checkComplete() {
+            if (state.matchedCount === PAIRS.length) {
+                // all matched
+                updateProgress();
+                // show a final congrats message
+                congratsEl.classList.remove('hidden');
+                // maybe show last sentence if not shown
+                // but we already show sentence on each match
+            }
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // RENDER
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        function render() {
+            // --- Spanish ---
+            esListEl.innerHTML = '';
+            state.esItems.forEach((item, idx) => {
+                const card = document.createElement('div');
+                card.className = 'word-card';
+                if (item.matched) card.classList.add('matched');
+                card.dataset.id = `es-${idx}`;
+                card.dataset.pairId = item.pairId;
+                card.dataset.side = 'es';
+                card.innerHTML = `${item.text} <span class="check">✓</span>`;
+                card.addEventListener('click', () => onWordClick('es', idx));
+                esListEl.appendChild(card);
+            });
+
+            // --- Russian ---
+            ruListEl.innerHTML = '';
+            state.ruItems.forEach((item, idx) => {
+                const card = document.createElement('div');
+                card.className = 'word-card';
+                if (item.matched) card.classList.add('matched');
+                card.dataset.id = `ru-${idx}`;
+                card.dataset.pairId = item.pairId;
+                card.dataset.side = 'ru';
+                card.innerHTML = `${item.text} <span class="check">✓</span>`;
+                card.addEventListener('click', () => onWordClick('ru', idx));
+                ruListEl.appendChild(card);
+            });
+
+            // restore selection highlight if any
+            if (state.selectedId !== null) {
+                const sel = document.querySelector(`.word-card[data-id="${state.selectedId}"]`);
+                if (sel && !sel.classList.contains('matched')) {
+                    sel.classList.add('selected');
+                } else {
+                    state.selectedId = null;
+                }
+            }
+
+            updateProgress();
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // GAME LOGIC
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        function onWordClick(side, idx) {
+            const items = side === 'es' ? state.esItems : state.ruItems;
+            const item = items[idx];
+            // if already matched, ignore
+            if (item.matched) return;
+
+            // if there is a selected item from the SAME side, deselect it
+            if (state.selectedId !== null) {
+                const [selSide, selIdx] = state.selectedId.split('-');
+                if (selSide === side && parseInt(selIdx) === idx) {
+                    // clicking the same item → deselect
+                    clearSelection();
+                    return;
+                }
+                if (selSide === side) {
+                    // clicking another item on the same side → switch selection
+                    const prev = document.querySelector(`.word-card[data-id="${state.selectedId}"]`);
+                    if (prev) prev.classList.remove('selected');
+                    state.selectedId = `es-${idx}`;
+                    const curr = document.querySelector(`.word-card[data-id="${state.selectedId}"]`);
+                    if (curr) curr.classList.add('selected');
+                    return;
+                }
+            }
+
+            // If no selection, select this item
+            if (state.selectedId === null) {
+                state.selectedId = `${side}-${idx}`;
+                const el = document.querySelector(`.word-card[data-id="${state.selectedId}"]`);
+                if (el) el.classList.add('selected');
+                return;
+            }
+
+            // ── We have a selection from the opposite side ──
+            const [selSide, selIdxStr] = state.selectedId.split('-');
+            const selIdx = parseInt(selIdxStr);
+            const selItem = selSide === 'es' ? state.esItems[selIdx] : state.ruItems[selIdx];
+
+            // if the selected item is already matched (should not happen), clear and exit
+            if (selItem.matched) {
+                clearSelection();
+                return;
+            }
+
+            // Check if they match (same pairId)
+            if (selItem.pairId === item.pairId) {
+                // ✅ CORRECT MATCH
+                // mark both as matched
+                const esItem = state.esItems.find(it => it.pairId === item.pairId);
+                const ruItem = state.ruItems.find(it => it.pairId === item.pairId);
+                if (esItem && ruItem && !esItem.matched && !ruItem.matched) {
+                    esItem.matched = true;
+                    ruItem.matched = true;
+                    state.matchedCount += 1;
+
+                    // show sentence for this pair
+                    showSentence(item.pairId);
+
+                    // clear selection
+                    clearSelection();
+                    render();
+                    checkComplete();
+                } else {
+                    // should not happen
+                    clearSelection();
+                    render();
+                }
+            } else {
+                // ❌ WRONG MATCH
+                // flash both cards red
+                const el1 = document.querySelector(`.word-card[data-id="${state.selectedId}"]`);
+                const el2 = document.querySelector(`.word-card[data-id="${side}-${idx}"]`);
+                if (el1) el1.classList.add('wrong');
+                if (el2) el2.classList.add('wrong');
+
+                setTimeout(() => {
+                    if (el1) el1.classList.remove('wrong');
+                    if (el2) el2.classList.remove('wrong');
+                }, 400);
+
+                // deselect
+                clearSelection();
+                render();
+            }
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // INIT / RESET
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        function initGame() {
+            // build items
+            const esRaw = buildItems(PAIRS, 'es');
+            const ruRaw = buildItems(PAIRS, 'ru');
+            state.esItems = shuffle(esRaw);
+            state.ruItems = shuffle(ruRaw);
+            state.matchedCount = 0;
+            state.selectedId = null;
+            state.shownSentences = new Set();
+
+            // reset UI
+            emptyMsg.classList.remove('hidden');
+            sentenceText.classList.add('hidden');
+            sentenceText.innerHTML = '';
+            congratsEl.classList.add('hidden');
+
+            render();
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // EVENTS
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        resetBtn.addEventListener('click', initGame);
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // START
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        initGame();
+    </script>
+
+</body>
+</html>
