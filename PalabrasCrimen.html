@@ -167,10 +167,20 @@
             cursor: default;
             pointer-events: none;
             color: #3d5033;
+            /* Mostrar la palabra emparejada con estilo de conexión */
+            position: relative;
         }
+        
+        .word-card.matched::after {
+            content: '🔗';
+            margin-left: 8px;
+            font-size: 14px;
+        }
+        
         .word-card.matched .check {
             display: inline-block;
         }
+        
         .word-card .check {
             display: none;
             color: #4d7a3a;
@@ -225,9 +235,70 @@
             animation: pop 0.3s ease;
         }
 
+        /* ── Contenedor de pares emparejados ── */
+        .matched-pairs-container {
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 24px;
+            border: 2px dashed #cbbeb0;
+            min-height: 60px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .matched-pairs-container .label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #8a7e70;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            width: 100%;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+        
+        .matched-pair {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #e1e9d7;
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 2px solid #8aa67a;
+            font-weight: 600;
+            animation: pop 0.3s ease;
+            font-size: 15px;
+        }
+        
+        .matched-pair .pair-es {
+            color: #4d7a3a;
+        }
+        
+        .matched-pair .pair-ru {
+            color: #3d5033;
+        }
+        
+        .matched-pair .pair-link {
+            color: #6b8a5a;
+            font-size: 18px;
+        }
+        
+        .empty-pairs-msg {
+            color: #9a8e80;
+            font-style: italic;
+            font-weight: 400;
+            font-size: 16px;
+            text-align: center;
+            padding: 10px;
+        }
+
         /* ── sentence display ── */
         .sentence-area {
-            margin-top: 30px;
+            margin-top: 20px;
             padding: 18px 24px;
             background: rgba(255, 255, 255, 0.7);
             border-radius: 24px;
@@ -371,6 +442,13 @@
             </div>
         </div>
 
+        <!-- matched pairs container -->
+        <div class="matched-pairs-container" id="matchedPairsContainer">
+            <span class="label">🔗 Parejas emparejadas</span>
+            <div class="empty-pairs-msg" id="emptyPairsMsg">Aún no hay parejas emparejadas</div>
+            <div id="matchedPairsList" style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; width: 100%;"></div>
+        </div>
+
         <!-- sentence area -->
         <div class="sentence-area" id="sentenceArea">
             <span class="label">📖 Ejemplo</span>
@@ -468,12 +546,11 @@
         // STATE
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         let state = {
-            // Each item: { pairId, text, matched }
             esItems: [],
             ruItems: [],
+            matchedPairs: [], // Array de {pairId, es, ru}
             matchedCount: 0,
-            selectedId: null, // 'es-{index}' or null
-            // track which sentences have been shown
+            selectedId: null,
             shownSentences: new Set(),
         };
 
@@ -486,6 +563,8 @@
         const sentenceArea = document.getElementById('sentenceArea');
         const congratsEl = document.getElementById('congrats');
         const resetBtn = document.getElementById('resetBtn');
+        const matchedPairsList = document.getElementById('matchedPairsList');
+        const emptyPairsMsg = document.getElementById('emptyPairsMsg');
 
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         // HELPERS
@@ -529,31 +608,40 @@
             if (!pair) return;
             emptyMsg.classList.add('hidden');
             sentenceText.classList.remove('hidden');
-            // highlight the spanish word in the sentence
             const esWord = pair.es;
             let sentenceHtml = pair.sentence;
-            // try to highlight the exact word/phrase
             const regex = new RegExp(esWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
             if (regex.test(sentenceHtml)) {
                 sentenceHtml = sentenceHtml.replace(regex, `<span class="highlight-es">${esWord}</span>`);
             } else {
-                // fallback: just show the sentence with the word at the end
                 sentenceHtml = `${pair.sentence}  <span class="highlight-es">(${esWord})</span>`;
             }
             sentenceText.innerHTML = sentenceHtml;
-            // store shown
             state.shownSentences.add(pairId);
         }
 
-        function checkComplete() {
-            if (state.matchedCount === PAIRS.length) {
-                // all matched
-                updateProgress();
-                // show a final congrats message
-                congratsEl.classList.remove('hidden');
-                // maybe show last sentence if not shown
-                // but we already show sentence on each match
+        function updateMatchedPairsDisplay() {
+            // Limpiar el contenedor
+            matchedPairsList.innerHTML = '';
+            
+            if (state.matchedPairs.length === 0) {
+                emptyPairsMsg.style.display = 'block';
+                return;
             }
+            
+            emptyPairsMsg.style.display = 'none';
+            
+            // Mostrar cada par emparejado
+            state.matchedPairs.forEach(pair => {
+                const pairEl = document.createElement('div');
+                pairEl.className = 'matched-pair';
+                pairEl.innerHTML = `
+                    <span class="pair-es">${pair.es}</span>
+                    <span class="pair-link">🔗</span>
+                    <span class="pair-ru">${pair.ru}</span>
+                `;
+                matchedPairsList.appendChild(pairEl);
+            });
         }
 
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -599,6 +687,7 @@
             }
 
             updateProgress();
+            updateMatchedPairsDisplay();
         }
 
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -622,7 +711,7 @@
                     // clicking another item on the same side → switch selection
                     const prev = document.querySelector(`.word-card[data-id="${state.selectedId}"]`);
                     if (prev) prev.classList.remove('selected');
-                    state.selectedId = `es-${idx}`;
+                    state.selectedId = `${side}-${idx}`;
                     const curr = document.querySelector(`.word-card[data-id="${state.selectedId}"]`);
                     if (curr) curr.classList.add('selected');
                     return;
@@ -658,6 +747,14 @@
                     esItem.matched = true;
                     ruItem.matched = true;
                     state.matchedCount += 1;
+                    
+                    // Guardar el par emparejado
+                    const pair = PAIRS[item.pairId];
+                    state.matchedPairs.push({
+                        pairId: item.pairId,
+                        es: pair.es,
+                        ru: pair.ru
+                    });
 
                     // show sentence for this pair
                     showSentence(item.pairId);
@@ -690,6 +787,14 @@
             }
         }
 
+        function checkComplete() {
+            if (state.matchedCount === PAIRS.length) {
+                // all matched
+                updateProgress();
+                congratsEl.classList.remove('hidden');
+            }
+        }
+
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         // INIT / RESET
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -702,12 +807,15 @@
             state.matchedCount = 0;
             state.selectedId = null;
             state.shownSentences = new Set();
+            state.matchedPairs = [];
 
             // reset UI
             emptyMsg.classList.remove('hidden');
             sentenceText.classList.add('hidden');
             sentenceText.innerHTML = '';
             congratsEl.classList.add('hidden');
+            emptyPairsMsg.style.display = 'block';
+            matchedPairsList.innerHTML = '';
 
             render();
         }
