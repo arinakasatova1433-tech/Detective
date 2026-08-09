@@ -1,4 +1,4 @@
-# Detective https://arinakasatova1433-tech.github.io/Detective/DetecPalabras.html
+# Detective https://arinakasatova1433-tech.github.io/Detective/
 1 и 2 https://arinakasatova1433-tech.github.io/Detective/Detectiv1_2
 
 PalabrasCrimen https://arinakasatova1433-tech.github.io/Detective/PalabrasCrimen.html
@@ -9,6 +9,5 @@ Sospechoso https://arinakasatova1433-tech.github.io/Detective/Sospechoso1.html
 
 3 https://arinakasatova1433-tech.github.io/Detective/Detectiv3.html
 
-https://arinakasatova1433-tech.github.io/Detective/DetecPalabras.html
-
+DetecPalabras https://arinakasatova1433-tech.github.io/Detective/DetecPalabras.html
 
