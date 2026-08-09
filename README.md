@@ -9,5 +9,3 @@ Sospechoso https://arinakasatova1433-tech.github.io/Detective/Sospechoso1.html
 
 3 https://arinakasatova1433-tech.github.io/Detective/Detectiv3.html
 
-DetecPalabras https://arinakasatova1433-tech.github.io/Detective/DetecPalabras.html
-
