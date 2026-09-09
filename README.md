@@ -16,3 +16,5 @@ Detective3Indefenido https://arinakasatova1433-tech.github.io/Detective/Detectiv
 DetectivODOI https://arinakasatova1433-tech.github.io/Detective/DetectiveODOI.html
 
 Detectiv5PerfIndef https://arinakasatova1433-tech.github.io/Detective/Detectiv5PerfIndef
+
+BodegaMisteriosa https://arinakasatova1433-tech.github.io/Detective/BodegaMisteriosa.html
