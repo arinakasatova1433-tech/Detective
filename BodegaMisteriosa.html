@@ -1,0 +1,1443 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 Bodega misteriosa · Investigación</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background: #1a1410;
+            font-family: 'Segoe UI', 'Courier New', monospace;
+            padding: 1.5rem 1rem;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            background: #f5ede0;
+            background-image: repeating-linear-gradient(45deg, #e8dcc8 0px, #e8dcc8 2px, #f5ede0 2px, #f5ede0 4px);
+            padding: 2rem 2.5rem;
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 0 4px #5a4a3a inset, 0 0 0 6px #8a7a62 inset;
+            border: 8px solid #3d2e1f;
+            position: relative;
+        }
+        .container::before {
+            content: "🔍";
+            position: absolute;
+            top: -15px;
+            right: 30px;
+            font-size: 4rem;
+            opacity: 0.2;
+            transform: rotate(15deg);
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            color: #2b1c0e;
+            border-bottom: 4px double #6b4f34;
+            padding-bottom: 0.3rem;
+            font-family: 'Times New Roman', serif;
+            text-shadow: 3px 3px 0 rgba(90, 63, 43, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        h1 small {
+            font-size: 1rem;
+            letter-spacing: 2px;
+            background: #2b1c0e;
+            color: #e6dccc;
+            padding: 0.1rem 1.2rem;
+            border-radius: 30px;
+            font-weight: 400;
+            margin-left: auto;
+        }
+        .intro-text {
+            font-size: 1.1rem;
+            color: #3d3228;
+            background: rgba(200,180,150,0.3);
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            border-left: 4px solid #6b4f36;
+            margin: 1rem 0 1.5rem;
+            line-height: 1.6;
+        }
+
+        .section-title {
+            background: #dacfc0;
+            padding: 0.3rem 1.5rem;
+            border-radius: 40px;
+            display: inline-block;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #2b1c0e;
+            border: 1px solid #8a7a62;
+            margin: 1.5rem 0 0.8rem;
+        }
+        .section-title span { margin-right: 0.5rem; }
+
+        /* LOCACIONES */
+        .locacion {
+            background: #fcf7f0;
+            padding: 1.5rem 2rem;
+            border-radius: 16px;
+            border-left: 8px solid #6b4f36;
+            box-shadow: inset 0 0 0 1px #d6cbbc, 0 6px 12px rgba(0,0,0,0.08);
+            margin-bottom: 1.5rem;
+        }
+        .locacion h2 {
+            font-size: 1.8rem;
+            color: #2b1c0e;
+            font-family: 'Times New Roman', serif;
+            border-bottom: 2px dashed #aa8b74;
+            padding-bottom: 0.3rem;
+            margin-bottom: 0.5rem;
+        }
+        .locacion .descripcion {
+            color: #3d3228;
+            font-size: 0.98rem;
+            line-height: 1.7;
+            margin-bottom: 1rem;
+            padding: 0.5rem 1rem;
+            background: rgba(200,180,150,0.15);
+            border-radius: 8px;
+        }
+
+        /* PREGUNTAS */
+        .pregunta {
+            background: #faf3e9;
+            padding: 0.8rem 1.2rem;
+            border-radius: 12px;
+            margin-bottom: 0.8rem;
+            border: 1px solid #d6cbbc;
+        }
+        .pregunta .enunciado {
+            font-weight: 600;
+            color: #2b1c0e;
+            margin-bottom: 0.4rem;
+        }
+        .pregunta .opciones {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin-top: 0.3rem;
+        }
+        .pregunta .opciones label {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: #fff;
+            padding: 0.3rem 1rem;
+            border-radius: 30px;
+            border: 2px solid #b8a080;
+            cursor: pointer;
+            transition: 0.2s;
+            font-weight: 500;
+        }
+        .pregunta .opciones label:hover {
+            border-color: #6b4f36;
+            background: #f0e8da;
+        }
+        .pregunta .opciones input[type="radio"] {
+            accent-color: #6b4f36;
+            width: 16px;
+            height: 16px;
+        }
+        .pregunta .opciones label.correcta {
+            border-color: #1d6b2e;
+            background: rgba(29, 107, 46, 0.12);
+        }
+        .pregunta .opciones label.incorrecta {
+            border-color: #a13d2a;
+            background: rgba(161, 61, 42, 0.12);
+        }
+        .pregunta .feedback {
+            margin-top: 0.4rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: none;
+        }
+        .pregunta .feedback.acierto {
+            display: block;
+            color: #1d6b2e;
+        }
+        .pregunta .feedback.fallo {
+            display: block;
+            color: #a13d2a;
+        }
+        .pregunta .feedback .respuesta-correcta {
+            color: #1d6b2e;
+            font-weight: 700;
+        }
+
+        /* PISTA */
+        .pista {
+            background: #f0e8da;
+            padding: 0.8rem 1.2rem;
+            border-radius: 12px;
+            border-left: 6px solid #b8935a;
+            margin-top: 0.8rem;
+            font-weight: 600;
+            color: #3d3228;
+            display: none;
+        }
+        .pista.mostrar {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        .pista .icono {
+            font-size: 1.5rem;
+            margin-right: 0.5rem;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* BOTÓN COMPROBAR */
+        .btn-comprobar {
+            background: #4d3a28;
+            border: none;
+            color: #f2ecdf;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: 700;
+            font-size: 0.85rem;
+            padding: 0.5rem 1.8rem;
+            border-radius: 60px;
+            letter-spacing: 1.5px;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #1f150c;
+            transition: 0.1s ease;
+            border: 1px solid #7f6242;
+            text-transform: uppercase;
+            margin-top: 0.5rem;
+        }
+        .btn-comprobar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 #1f150c;
+            background: #5f4733;
+        }
+        .btn-comprobar:active {
+            transform: translateY(4px);
+            box-shadow: 0 0px 0 #1f150c;
+        }
+        .btn-comprobar.verde {
+            background: #2d5a3b;
+            box-shadow: 0 4px 0 #14331f;
+            border-color: #4b7a58;
+        }
+        .btn-comprobar.verde:hover { background: #3a704b; }
+
+        .btn-siguiente {
+            background: #7f6242;
+            border: none;
+            color: #f2ecdf;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: 700;
+            font-size: 0.85rem;
+            padding: 0.5rem 1.8rem;
+            border-radius: 60px;
+            letter-spacing: 1.5px;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #4d351f;
+            transition: 0.1s ease;
+            border: 1px solid #9b8a78;
+            text-transform: uppercase;
+            margin-top: 0.5rem;
+            display: none;
+        }
+        .btn-siguiente:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 #4d351f;
+            background: #9c7a56;
+        }
+        .btn-siguiente:active {
+            transform: translateY(4px);
+            box-shadow: 0 0px 0 #4d351f;
+        }
+
+        /* VERDADERO/FALSO */
+        .vf-opciones {
+            display: flex;
+            gap: 1rem;
+        }
+        .vf-opciones label {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: #fff;
+            padding: 0.3rem 1.2rem;
+            border-radius: 30px;
+            border: 2px solid #b8a080;
+            cursor: pointer;
+            transition: 0.2s;
+            font-weight: 500;
+        }
+        .vf-opciones label:hover {
+            border-color: #6b4f36;
+            background: #f0e8da;
+        }
+        .vf-opciones input[type="radio"] {
+            accent-color: #6b4f36;
+            width: 16px;
+            height: 16px;
+        }
+
+        /* FINAL CON IMÁGENES */
+        .final {
+            background: #fcf7f0;
+            padding: 2rem;
+            border-radius: 16px;
+            border-left: 8px solid #b8935a;
+            box-shadow: inset 0 0 0 1px #d6cbbc, 0 6px 12px rgba(0,0,0,0.08);
+            margin-top: 1.5rem;
+            text-align: center;
+        }
+        .final h2 {
+            font-size: 2rem;
+            color: #2b1c0e;
+            font-family: 'Times New Roman', serif;
+            margin-bottom: 0.5rem;
+        }
+        .final .sospechosos {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        .final .sospechoso {
+            background: #faf3e9;
+            padding: 1rem;
+            border-radius: 16px;
+            border: 3px solid #b8a080;
+            cursor: pointer;
+            transition: 0.3s;
+            min-width: 160px;
+            max-width: 180px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .final .sospechoso:hover {
+            border-color: #6b4f36;
+            transform: scale(1.03);
+            background: #f0e8da;
+        }
+        .final .sospechoso.seleccionado {
+            border-color: #b8935a;
+            background: #f5e6c8;
+            box-shadow: 0 0 0 4px #b8935a;
+        }
+        .final .sospechoso.correcto {
+            border-color: #1d6b2e;
+            background: rgba(29, 107, 46, 0.15);
+        }
+        .final .sospechoso.incorrecto {
+            border-color: #a13d2a;
+            background: rgba(161, 61, 42, 0.15);
+        }
+        .final .sospechoso .foto {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #b8a080;
+            background: #e8dccc;
+        }
+        .final .sospechoso .nombre {
+            font-weight: 700;
+            font-size: 1rem;
+            color: #2b1c0e;
+        }
+        .final .sospechoso .descripcion {
+            font-weight: 400;
+            font-size: 0.8rem;
+            color: #4d3c2b;
+        }
+
+        .resultado-final {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            display: none;
+        }
+        .resultado-final.exito {
+            display: block;
+            background: rgba(29, 107, 46, 0.12);
+            color: #1d6b2e;
+            border: 2px solid #1d6b2e;
+        }
+        .resultado-final.fracaso {
+            display: block;
+            background: rgba(161, 61, 42, 0.12);
+            color: #a13d2a;
+            border: 2px solid #a13d2a;
+        }
+
+        .progress-bar {
+            background: #dacfc0;
+            border-radius: 30px;
+            height: 12px;
+            margin: 1.5rem 0;
+            overflow: hidden;
+            border: 1px solid #8a7a62;
+        }
+        .progress-bar .fill {
+            height: 100%;
+            background: linear-gradient(90deg, #6b4f36, #b8935a);
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 30px;
+        }
+
+        .oculto {
+            display: none !important;
+        }
+
+        .mensaje-bravo {
+            background: rgba(29, 107, 46, 0.1);
+            border: 2px solid #1d6b2e;
+            border-radius: 12px;
+            padding: 0.8rem 1.2rem;
+            text-align: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: #1d6b2e;
+            margin-top: 0.8rem;
+            display: none;
+        }
+        .mensaje-bravo.mostrar {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .reset-btn {
+            background: #4d3a28;
+            border: none;
+            color: #f2ecdf;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: 700;
+            font-size: 0.85rem;
+            padding: 0.6rem 2rem;
+            border-radius: 60px;
+            letter-spacing: 1.5px;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #1f150c;
+            transition: 0.1s ease;
+            border: 1px solid #7f6242;
+            text-transform: uppercase;
+            margin-top: 1rem;
+        }
+        .reset-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 #1f150c;
+            background: #5f4733;
+        }
+        .reset-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 0px 0 #1f150c;
+        }
+
+        /* ============================================================ */
+        /* ESTILOS PARA EL EJERCICIO DE LA BODEGA (ARRESTRAR PALABRAS) */
+        /* ============================================================ */
+        .texto-con-huecos {
+            background: #fcf7f0;
+            padding: 1.5rem 2rem;
+            border-radius: 16px;
+            border: 2px solid #d6cbbc;
+            margin-bottom: 1.5rem;
+            font-size: 1.15rem;
+            line-height: 2.4;
+            color: #1e150e;
+            min-height: 200px;
+        }
+        .texto-con-huecos .linea {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.3rem 0.5rem;
+            margin-bottom: 0.3rem;
+        }
+        .texto-con-huecos .hueco {
+            display: inline-block;
+            min-width: 120px;
+            padding: 0.2rem 0.6rem;
+            border-bottom: 3px dashed #7f6242;
+            background: rgba(200,180,150,0.15);
+            border-radius: 4px;
+            text-align: center;
+            font-weight: 600;
+            color: #2b1c0e;
+            min-height: 40px;
+            cursor: pointer;
+            transition: 0.2s;
+            position: relative;
+        }
+        .texto-con-huecos .hueco:hover {
+            background: rgba(200,180,150,0.3);
+        }
+        .texto-con-huecos .hueco.llenado {
+            border-bottom-color: #1d6b2e;
+            background: rgba(29, 107, 46, 0.08);
+        }
+        .texto-con-huecos .hueco.incorrecto {
+            border-bottom-color: #a13d2a;
+            background: rgba(161, 61, 42, 0.12);
+        }
+        .texto-con-huecos .hueco.correcto {
+            border-bottom-color: #1d6b2e;
+            background: rgba(29, 107, 46, 0.12);
+        }
+        .texto-con-huecos .palabra-fija {
+            font-weight: 500;
+            color: #2b1c0e;
+        }
+        .texto-con-huecos .palabra-fija.mayus {
+            font-weight: 700;
+            color: #1e150e;
+        }
+
+        .palabras-disponibles {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            justify-content: center;
+            background: #faf3e9;
+            padding: 1.2rem 1.5rem;
+            border-radius: 16px;
+            border: 2px dashed #b8a080;
+            margin-bottom: 1.5rem;
+            min-height: 70px;
+        }
+        .palabra-draggable {
+            background: #fff;
+            padding: 0.5rem 1.2rem;
+            border-radius: 30px;
+            border: 2px solid #7f6242;
+            font-weight: 700;
+            font-size: 1rem;
+            color: #2b1c0e;
+            cursor: pointer;
+            transition: 0.2s;
+            user-select: none;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+        .palabra-draggable:hover {
+            transform: scale(1.05);
+            border-color: #b8935a;
+            background: #f5e6c8;
+        }
+        .palabra-draggable.usada {
+            opacity: 0.3;
+            cursor: not-allowed;
+            transform: scale(0.9);
+            border-color: #b8a080;
+            background: #e8dccc;
+            pointer-events: none;
+        }
+
+        .btn-group-bodega {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 0.5rem 0 1rem;
+        }
+
+        @media (max-width: 700px) {
+            .container { padding: 1rem; }
+            h1 { font-size: 1.8rem; }
+            .locacion { padding: 1rem; }
+            .final .sospechosos { flex-direction: column; align-items: center; }
+            .final .sospechoso { max-width: 100%; width: 100%; }
+            .pregunta .opciones { flex-direction: column; }
+            .texto-con-huecos { padding: 1rem; font-size: 1rem; }
+            .texto-con-huecos .hueco { min-width: 80px; font-size: 0.9rem; }
+            .palabra-draggable { font-size: 0.85rem; padding: 0.3rem 0.8rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>
+        <span>🍇 Bodega misteriosa</span>
+        <small>investigación</small>
+    </h1>
+
+    <div class="intro-text">
+        <strong>En la bodega falta algo muy importante antes de la fiesta… ¿Qué pasó? ¿Quién lo hizo?</strong>
+    </div>
+
+    <div class="progress-bar">
+        <div class="fill" id="progressFill"></div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- LOCACIÓN 1: LA VIÑA -->
+    <!-- ============================================================ -->
+    <div class="locacion" id="locacion1">
+        <h2>🌿 La viña</h2>
+        <div class="descripcion">
+            Era una tarde tranquila en el viñedo. El aire olía a uvas dulces y a tierra húmeda después de la lluvia.
+            Desde lejos se escuchaban las voces de los trabajadores y el canto de los pájaros.
+            Todo parecía normal… pero en ese ambiente tan pacífico también podía esconderse una pista importante.
+        </div>
+
+        <!-- Pregunta 1 -->
+        <div class="pregunta" data-pregunta="vina1">
+            <div class="enunciado">1. El sol ...</div>
+            <div class="opciones">
+                <label><input type="radio" name="vina1" value="brillaba"> brillaba</label>
+                <label><input type="radio" name="vina1" value="brilló"> brilló</label>
+            </div>
+            <div class="feedback" id="feedback-vina1"></div>
+        </div>
+
+        <!-- Pregunta 2 -->
+        <div class="pregunta" data-pregunta="vina2">
+            <div class="enunciado">2. Los trabajadores... las uvas</div>
+            <div class="opciones">
+                <label><input type="radio" name="vina2" value="cortaron"> cortaron</label>
+                <label><input type="radio" name="vina2" value="cortaban"> cortaban</label>
+            </div>
+            <div class="feedback" id="feedback-vina2"></div>
+        </div>
+
+        <!-- Pregunta 3 -->
+        <div class="pregunta" data-pregunta="vina3">
+            <div class="enunciado">3. Los pájaros ... en los árboles</div>
+            <div class="opciones">
+                <label><input type="radio" name="vina3" value="cantaron"> cantaron</label>
+                <label><input type="radio" name="vina3" value="cantaban"> cantaban</label>
+            </div>
+            <div class="feedback" id="feedback-vina3"></div>
+        </div>
+
+        <!-- Pregunta 4 -->
+        <div class="pregunta" data-pregunta="vina4">
+            <div class="enunciado">4. La gente ... y ...</div>
+            <div class="opciones">
+                <label><input type="radio" name="vina4" value="hablaba/reía"> hablaba / reía</label>
+                <label><input type="radio" name="vina4" value="habló/rió"> habló / rió</label>
+            </div>
+            <div class="feedback" id="feedback-vina4"></div>
+        </div>
+
+        <!-- Pregunta 5 -->
+        <div class="pregunta" data-pregunta="vina5">
+            <div class="enunciado">5. El viento ... fuerte</div>
+            <div class="opciones">
+                <label><input type="radio" name="vina5" value="sopló"> sopló</label>
+                <label><input type="radio" name="vina5" value="soplaba"> soplaba</label>
+            </div>
+            <div class="feedback" id="feedback-vina5"></div>
+        </div>
+
+        <button class="btn-comprobar verde" onclick="comprobarVina()">✅ Comprobar</button>
+        <button class="btn-siguiente" id="siguienteVina" onclick="siguienteLocacion(2)">➡️ Siguiente →</button>
+
+        <div class="mensaje-bravo" id="bravoVina">¡Bravo! Has completado la primera parte de la investigación</div>
+
+        <div class="pista" id="pistaVina">
+            <span class="icono">👣</span>
+            <strong>Pista 1:</strong> Los trabajadores vieron huellas de zapatos cerca de las viñas.
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- LOCACIÓN 2: LA BODEGA -->
+    <!-- ============================================================ -->
+    <div class="locacion oculto" id="locacion2">
+        <h2>🍷 La bodega</h2>
+        <div class="descripcion">
+            El silencio dentro de la bodega resultaba extraño. Normalmente allí se escuchaba el eco de las pisadas
+            y el murmullo de los visitantes, pero esta vez solo había oscuridad y una puerta rota.
+            El polvo en el suelo revelaba que alguien había estado allí la noche anterior.
+            Entre las barricas se escondía la siguiente pista…
+        </div>
+
+        <p style="font-weight:600; color:#2b1c0e; margin-top:0.5rem;">Completa las frases (elige la forma correcta):</p>
+
+        <!-- TEXTO CON HUECOS -->
+        <div class="texto-con-huecos" id="textoConHuecos">
+            <div class="linea">
+                <span class="palabra-fija mayus">AYER</span>
+                <span class="palabra-fija">ALGUIEN</span>
+                <span class="hueco" id="hueco1" data-respuesta="entró"></span>
+                <span class="palabra-fija">EN LA BODEGA Y</span>
+                <span class="hueco" id="hueco2" data-respuesta="rompió"></span>
+                <span class="palabra-fija">UNA BOTELLA MUY</span>
+                <span class="hueco" id="hueco3" data-respuesta="especial"></span>
+            </div>
+            <div class="linea">
+                <span class="palabra-fija">DESPUÉS</span>
+                <span class="hueco" id="hueco4" data-respuesta="oyó"></span>
+                <span class="palabra-fija">UN RUIDO PERO NO</span>
+                <span class="hueco" id="hueco5" data-respuesta="pudo"></span>
+                <span class="palabra-fija">VER A NADIE.</span>
+            </div>
+            <div class="linea" style="margin-top:0.8rem; border-top:1px dashed #d6cbbc; padding-top:0.8rem;">
+                <span class="palabra-fija">EL GUARDIA</span>
+                <span class="hueco" id="hueco6" data-respuesta="se_llevó"></span>
+                <span class="palabra-fija">LA BOTELLA ESPECIAL.</span>
+            </div>
+        </div>
+
+        <!-- PALABRAS DISPONIBLES -->
+        <div class="palabras-disponibles" id="palabrasDisponibles">
+            <span class="palabra-draggable" data-palabra="rompió">ROMPIÓ</span>
+            <span class="palabra-draggable" data-palabra="entró">ENTRÓ</span>
+            <span class="palabra-draggable" data-palabra="pudo">PUDO</span>
+            <span class="palabra-draggable" data-palabra="oyó">OYÓ</span>
+            <span class="palabra-draggable" data-palabra="se_llevó">SE LLEVÓ</span>
+            <span class="palabra-draggable" data-palabra="especial">ESPECIAL</span>
+        </div>
+
+        <div class="btn-group-bodega">
+            <button class="btn-comprobar verde" onclick="comprobarBodega2()">✅ Comprobar</button>
+            <button class="btn-comprobar" style="background:#7f6242; box-shadow:0 4px 0 #4d351f; border-color:#9b8a78;" onclick="mostrarRespuestasBodega()">🔍 Mostrar respuestas</button>
+            <button class="btn-comprobar" style="background:#5a4a3a; box-shadow:0 4px 0 #2f2419;" onclick="limpiarBodega()">🧹 Limpiar</button>
+        </div>
+
+        <div id="resultadoBodega" class="resultado" style="display:inline-block; margin-top:0.5rem;"></div>
+
+        <div class="pista" id="pistaBodega2">
+            <span class="icono">🧵</span>
+            <strong>Pista 2:</strong> En el suelo apareció un trozo de tela roja enganchado en la puerta.
+        </div>
+
+        <div class="mensaje-bravo" id="bravoBodega2">¡Bravo! Has completado la segunda parte de la investigación</div>
+
+        <button class="btn-siguiente" id="siguienteBodega2" onclick="siguienteLocacion(3)">➡️ Siguiente →</button>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- LOCACIÓN 3: EL MERCADO -->
+    <!-- ============================================================ -->
+    <div class="locacion oculto" id="locacion3">
+        <h2>🛒 El mercado</h2>
+        <div class="descripcion">
+            El mercado estaba lleno de vida: los vendedores gritaban sus ofertas y el aroma de frutas frescas llenaba el aire.
+            La gente caminaba entre los puestos, compraba, charlaba y reía.
+            Sin embargo, de repente ocurrió algo inesperado: un hombre misterioso apareció corriendo entre la multitud.
+            Los testigos recordaron algunos detalles importantes…
+        </div>
+
+        <p style="font-weight:600; color:#2b1c0e; margin-top:0.5rem;">Completa los recuerdos de los testigos (indefinido + imperfecto):</p>
+
+        <!-- Pregunta Mercado 1 -->
+        <div class="pregunta" data-pregunta="mercado1">
+            <div class="enunciado">Mientras la gente ___ (mirar) la fruta, el hombre ___ (empujar) a dos personas.</div>
+            <div class="opciones">
+                <label><input type="radio" name="mercado1" value="miraba/empujó"> miraba / empujó</label>
+                <label><input type="radio" name="mercado1" value="miró/empujaba"> miró / empujaba</label>
+                <label><input type="radio" name="mercado1" value="miraba/empujaba"> miraba / empujaba</label>
+                <label><input type="radio" name="mercado1" value="miró/empujó"> miró / empujó</label>
+            </div>
+            <div class="feedback" id="feedback-mercado1"></div>
+        </div>
+
+        <!-- Pregunta Mercado 2 -->
+        <div class="pregunta" data-pregunta="mercado2">
+            <div class="enunciado">Un vendedor ___ (gritar): "¡Cuidado!", mientras todos ___ (mirar) sorprendidos.</div>
+            <div class="opciones">
+                <label><input type="radio" name="mercado2" value="gritó/miraban"> gritó / miraban</label>
+                <label><input type="radio" name="mercado2" value="gritaba/miraron"> gritaba / miraron</label>
+                <label><input type="radio" name="mercado2" value="gritó/miraron"> gritó / miraron</label>
+                <label><input type="radio" name="mercado2" value="gritaba/miraron"> gritaba / miraron</label>
+            </div>
+            <div class="feedback" id="feedback-mercado2"></div>
+        </div>
+
+        <!-- Pregunta Mercado 3 -->
+        <div class="pregunta" data-pregunta="mercado3">
+            <div class="enunciado">Una mujer ___ (decir) que el hombre ___ (llevar) una chaqueta oscura.</div>
+            <div class="opciones">
+                <label><input type="radio" name="mercado3" value="dijo/llevaba"> dijo / llevaba</label>
+                <label><input type="radio" name="mercado3" value="dijo/llevó"> dijo / llevó</label>
+                <label><input type="radio" name="mercado3" value="decía/llevó"> decía / llevó</label>
+                <label><input type="radio" name="mercado3" value="decía/llevaba"> decía / llevaba</label>
+            </div>
+            <div class="feedback" id="feedback-mercado3"></div>
+        </div>
+
+        <button class="btn-comprobar verde" onclick="comprobarMercado()">✅ Comprobar</button>
+        <button class="btn-siguiente" id="siguienteMercado" onclick="siguienteLocacion(4)">➡️ Siguiente →</button>
+
+        <div class="mensaje-bravo" id="bravoMercado">¡Bravo! Has completado la tercera parte de la investigación</div>
+
+        <div class="pista" id="pistaMercado">
+            <span class="icono">🧥</span>
+            <strong>Pista 3:</strong> Una mujer aseguró que el sospechoso llevaba una chaqueta oscura y una bufanda roja.
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- LOCACIÓN 4: LA PLAZA -->
+    <!-- ============================================================ -->
+    <div class="locacion oculto" id="locacion4">
+        <h2>⛲ La plaza</h2>
+        <div class="descripcion">
+            La plaza del pueblo brillaba con luces de fiesta. Los niños jugaban cerca de la fuente y las familias disfrutaban de la tarde.
+            Todo parecía alegre y tranquilo… hasta que un hombre extraño irrumpió con algo escondido en la chaqueta.
+            La sorpresa de la gente ayudó a reconstruir lo que realmente pasó.
+        </div>
+
+        <p style="font-weight:600; color:#2b1c0e; margin-top:0.5rem;">Verdadero o falso:</p>
+
+        <!-- Pregunta Plaza 1 -->
+        <div class="pregunta" data-pregunta="plaza1">
+            <div class="enunciado">La plaza estaba vacía y oscura.</div>
+            <div class="vf-opciones">
+                <label><input type="radio" name="plaza1" value="verdadero"> Verdadero</label>
+                <label><input type="radio" name="plaza1" value="falso"> Falso</label>
+            </div>
+            <div class="feedback" id="feedback-plaza1"></div>
+        </div>
+
+        <!-- Pregunta Plaza 2 -->
+        <div class="pregunta" data-pregunta="plaza2">
+            <div class="enunciado">Los niños jugaban cerca de la fuente.</div>
+            <div class="vf-opciones">
+                <label><input type="radio" name="plaza2" value="verdadero"> Verdadero</label>
+                <label><input type="radio" name="plaza2" value="falso"> Falso</label>
+            </div>
+            <div class="feedback" id="feedback-plaza2"></div>
+        </div>
+
+        <!-- Pregunta Plaza 3 -->
+        <div class="pregunta" data-pregunta="plaza3">
+            <div class="enunciado">El hombre tenía algo escondido en la chaqueta.</div>
+            <div class="vf-opciones">
+                <label><input type="radio" name="plaza3" value="verdadero"> Verdadero</label>
+                <label><input type="radio" name="plaza3" value="falso"> Falso</label>
+            </div>
+            <div class="feedback" id="feedback-plaza3"></div>
+        </div>
+
+        <!-- Pregunta Plaza 4 -->
+        <div class="pregunta" data-pregunta="plaza4">
+            <div class="enunciado">Nadie reaccionó cuando el hombre apareció.</div>
+            <div class="vf-opciones">
+                <label><input type="radio" name="plaza4" value="verdadero"> Verdadero</label>
+                <label><input type="radio" name="plaza4" value="falso"> Falso</label>
+            </div>
+            <div class="feedback" id="feedback-plaza4"></div>
+        </div>
+
+        <button class="btn-comprobar verde" onclick="comprobarPlaza()">✅ Comprobar</button>
+        <button class="btn-siguiente" id="siguientePlaza" onclick="siguienteLocacion(5)">➡️ Siguiente →</button>
+
+        <div class="mensaje-bravo" id="bravoPlaza">¡Bravo! Has completado la cuarta parte de la investigación</div>
+
+        <div class="pista" id="pistaPlaza">
+            <span class="icono">⛪</span>
+            <strong>Pista 4:</strong> Los niños dijeron que el hombre escapó corriendo hacia la calle de la iglesia.
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- FINAL: ¿QUIÉN ES EL CULPABLE? CON IMÁGENES -->
+    <!-- ============================================================ -->
+    <div class="final oculto" id="final">
+        <h2>🕵️ ¿Quién es el culpable?</h2>
+        <p style="color:#3d3228; font-size:1.1rem; margin-bottom:1rem;">
+            Basándote en todas las pistas, ¿quién crees que es el responsable?
+        </p>
+
+        <div class="sospechosos">
+            <!-- Sospechoso 1: Ricardo Martínez -->
+            <div class="sospechoso" data-sospechoso="esposo" onclick="seleccionarSospechoso('esposo')">
+                <img class="foto" src="https://randomuser.me/api/portraits/men/32.jpg" alt="Ricardo Martínez">
+                <div class="nombre">👤 Ricardo Martínez</div>
+                <div class="descripcion">El esposo</div>
+            </div>
+
+            <!-- Sospechoso 2: Enrique Peralta -->
+            <div class="sospechoso" data-sospechoso="amante" onclick="seleccionarSospechoso('amante')">
+                <img class="foto" src="https://randomuser.me/api/portraits/men/55.jpg" alt="Enrique Peralta">
+                <div class="nombre">🎤 Enrique Peralta</div>
+                <div class="descripcion">El amante / cantante</div>
+            </div>
+
+            <!-- Sospechoso 3: Lola Sánchez -->
+            <div class="sospechoso" data-sospechoso="esposa_cantante" onclick="seleccionarSospechoso('esposa_cantante')">
+                <img class="foto" src="https://randomuser.me/api/portraits/women/68.jpg" alt="Lola Sánchez">
+                <div class="nombre">👩 Lola Sánchez</div>
+                <div class="descripcion">Esposa del cantante</div>
+            </div>
+
+            <!-- Sospechoso 4: Alicia Perero -->
+            <div class="sospechoso" data-sospechoso="alicia" onclick="seleccionarSospechoso('alicia')">
+                <img class="foto" src="https://randomuser.me/api/portraits/women/44.jpg" alt="Alicia Perero">
+                <div class="nombre">👩 Alicia Perero</div>
+                <div class="descripcion">Estudiante</div>
+            </div>
+        </div>
+
+        <button class="btn-comprobar verde" id="btnAcusar" onclick="acusar()">🔍 Acusar</button>
+
+        <div class="resultado-final" id="resultadoFinal"></div>
+
+        <button class="reset-btn" onclick="reiniciarJuego()">🔄 Volver a empezar</button>
+    </div>
+
+    <div style="text-align:center; margin-top:1.5rem; font-size:0.8rem; color:#4d3a28; opacity:0.6;">
+        🔍 Investigación · Bodega misteriosa
+    </div>
+</div>
+
+<script>
+    // ============================================================
+    // ESTADO DEL JUEGO
+    // ============================================================
+    let locacionActual = 1;
+    const totalLocaciones = 4;
+    let pistasEncontradas = 0;
+    let sospechosoSeleccionado = null;
+    let juegoTerminado = false;
+
+    // ============================================================
+    // RESPUESTAS CORRECTAS
+    // ============================================================
+    const respuestasVina = {
+        vina1: 'brillaba',
+        vina2: 'cortaban',
+        vina3: 'cantaban',
+        vina4: 'hablaba/reía',
+        vina5: 'soplaba'
+    };
+
+    const respuestasMercado = {
+        mercado1: 'miraba/empujó',
+        mercado2: 'gritó/miraban',
+        mercado3: 'dijo/llevaba'
+    };
+
+    const respuestasPlaza = {
+        plaza1: 'falso',
+        plaza2: 'verdadero',
+        plaza3: 'verdadero',
+        plaza4: 'falso'
+    };
+
+    // ============================================================
+    // FUNCIONES DE NAVEGACIÓN
+    // ============================================================
+    function mostrarLocacion(num) {
+        document.querySelectorAll('.locacion').forEach(el => el.classList.add('oculto'));
+        const el = document.getElementById('locacion' + num);
+        if (el) el.classList.remove('oculto');
+        locacionActual = num;
+        actualizarProgress();
+    }
+
+    function siguienteLocacion(num) {
+        if (num <= totalLocaciones) {
+            mostrarLocacion(num);
+        }
+        if (num === totalLocaciones + 1) {
+            document.getElementById('final').classList.remove('oculto');
+            document.querySelectorAll('.locacion').forEach(el => el.classList.add('oculto'));
+            actualizarProgress();
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function actualizarProgress() {
+        const fill = document.getElementById('progressFill');
+        let progress = 0;
+        if (locacionActual === 1) progress = 0;
+        else if (locacionActual === 2) progress = 25;
+        else if (locacionActual === 3) progress = 50;
+        else if (locacionActual === 4) progress = 75;
+        else if (locacionActual === 5 || document.getElementById('final').classList.contains('oculto') === false) progress = 100;
+        fill.style.width = progress + '%';
+    }
+
+    // ============================================================
+    // COMPROBAR VIÑA
+    // ============================================================
+    function comprobarVina() {
+        let todasCorrectas = true;
+        let respondidas = 0;
+
+        for (const [key, correcta] of Object.entries(respuestasVina)) {
+            const radios = document.getElementsByName(key);
+            let seleccionado = null;
+            for (const r of radios) {
+                if (r.checked) { seleccionado = r.value; break; }
+            }
+            const feedback = document.getElementById('feedback-' + key);
+
+            if (seleccionado === null) {
+                feedback.className = 'feedback fallo';
+                feedback.innerHTML = '❌ Por favor, selecciona una opción.';
+                todasCorrectas = false;
+                continue;
+            }
+            respondidas++;
+
+            if (seleccionado === correcta) {
+                feedback.className = 'feedback acierto';
+                feedback.innerHTML = '✅ ¡Correcto!';
+                const labels = document.querySelectorAll(`input[name="${key}"]`);
+                labels.forEach(l => {
+                    l.closest('label').classList.remove('correcta', 'incorrecta');
+                    if (l.value === correcta) l.closest('label').classList.add('correcta');
+                });
+            } else {
+                feedback.className = 'feedback fallo';
+                feedback.innerHTML = `❌ Incorrecto. La respuesta correcta era: <span class="respuesta-correcta">"${correcta}"</span>`;
+                todasCorrectas = false;
+                const labels = document.querySelectorAll(`input[name="${key}"]`);
+                labels.forEach(l => {
+                    l.closest('label').classList.remove('correcta', 'incorrecta');
+                    if (l.value === correcta) l.closest('label').classList.add('correcta');
+                    if (l.checked && l.value !== correcta) l.closest('label').classList.add('incorrecta');
+                });
+            }
+        }
+
+        if (respondidas === 0) {
+            alert('Por favor, responde todas las preguntas.');
+            return;
+        }
+
+        if (todasCorrectas) {
+            document.getElementById('bravoVina').classList.add('mostrar');
+            document.getElementById('pistaVina').classList.add('mostrar');
+            pistasEncontradas++;
+            document.getElementById('siguienteVina').style.display = 'inline-block';
+            document.querySelector('#locacion1 .btn-comprobar').disabled = true;
+            document.querySelector('#locacion1 .btn-comprobar').style.opacity = '0.5';
+        } else {
+            alert('❌ Algunas respuestas no son correctas. Revisa e inténtalo de nuevo.');
+        }
+    }
+
+    // ============================================================
+    // BODEGA: EJERCICIO DE COMPLETAR FRASES
+    // ============================================================
+    const huecosBodega = ['hueco1', 'hueco2', 'hueco3', 'hueco4', 'hueco5', 'hueco6'];
+    const respuestasBodega = {
+        hueco1: 'entró',
+        hueco2: 'rompió',
+        hueco3: 'especial',
+        hueco4: 'oyó',
+        hueco5: 'pudo',
+        hueco6: 'se_llevó'
+    };
+    let huecoSeleccionadoBodega = null;
+    let palabrasUsadasBodega = new Set();
+
+    // Inicializar eventos para la bodega
+    document.addEventListener('DOMContentLoaded', function() {
+        // Hacer clic en un hueco para seleccionarlo
+        document.querySelectorAll('#locacion2 .hueco').forEach(hueco => {
+            hueco.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (this.dataset.palabra) {
+                    devolverPalabraBodega(this);
+                    return;
+                }
+                document.querySelectorAll('#locacion2 .hueco').forEach(h => h.style.outline = 'none');
+                this.style.outline = '2px solid #b8935a';
+                this.style.outlineOffset = '2px';
+                huecoSeleccionadoBodega = this;
+            });
+        });
+
+        // Hacer clic en una palabra para colocarla en el hueco seleccionado
+        document.querySelectorAll('#locacion2 .palabra-draggable').forEach(palabra => {
+            palabra.addEventListener('click', function() {
+                if (this.classList.contains('usada')) return;
+                if (!huecoSeleccionadoBodega) {
+                    alert('Primero haz clic en un hueco (espacio vacío) para seleccionarlo.');
+                    return;
+                }
+                if (huecoSeleccionadoBodega.dataset.palabra) {
+                    alert('Este hueco ya tiene una palabra. Haz clic en él para devolverla.');
+                    return;
+                }
+                const palabraTexto = this.textContent.trim();
+                const palabraValor = this.dataset.palabra;
+                huecoSeleccionadoBodega.textContent = palabraTexto;
+                huecoSeleccionadoBodega.dataset.palabra = palabraValor;
+                huecoSeleccionadoBodega.classList.add('llenado');
+                huecoSeleccionadoBodega.style.outline = 'none';
+                this.classList.add('usada');
+                palabrasUsadasBodega.add(palabraValor);
+                huecoSeleccionadoBodega = null;
+            });
+        });
+
+        // Clic fuera para deseleccionar
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('#locacion2 .hueco') && !e.target.closest('#locacion2 .palabra-draggable')) {
+                document.querySelectorAll('#locacion2 .hueco').forEach(h => h.style.outline = 'none');
+                huecoSeleccionadoBodega = null;
+            }
+        });
+    });
+
+    function devolverPalabraBodega(hueco) {
+        const palabraValor = hueco.dataset.palabra;
+        if (!palabraValor) return;
+        const palabraEl = document.querySelector(`#locacion2 .palabra-draggable[data-palabra="${palabraValor}"]`);
+        if (palabraEl) {
+            palabraEl.classList.remove('usada');
+            palabrasUsadasBodega.delete(palabraValor);
+        }
+        hueco.textContent = '';
+        hueco.dataset.palabra = '';
+        hueco.classList.remove('llenado', 'correcto', 'incorrecto');
+        hueco.style.outline = 'none';
+    }
+
+    function limpiarBodega() {
+        document.querySelectorAll('#locacion2 .hueco').forEach(hueco => {
+            if (hueco.dataset.palabra) {
+                const palabraValor = hueco.dataset.palabra;
+                const palabraEl = document.querySelector(`#locacion2 .palabra-draggable[data-palabra="${palabraValor}"]`);
+                if (palabraEl) {
+                    palabraEl.classList.remove('usada');
+                    palabrasUsadasBodega.delete(palabraValor);
+                }
+            }
+            hueco.textContent = '';
+            hueco.dataset.palabra = '';
+            hueco.classList.remove('llenado', 'correcto', 'incorrecto');
+            hueco.style.outline = 'none';
+        });
+        document.getElementById('resultadoBodega').innerHTML = '';
+        document.getElementById('pistaBodega2').classList.remove('mostrar');
+        document.getElementById('bravoBodega2').classList.remove('mostrar');
+        document.getElementById('siguienteBodega2').style.display = 'none';
+        huecoSeleccionadoBodega = null;
+        palabrasUsadasBodega.clear();
+        const btnComprobar = document.querySelector('#locacion2 .btn-comprobar.verde');
+        if (btnComprobar) {
+            btnComprobar.disabled = false;
+            btnComprobar.style.opacity = '1';
+        }
+    }
+
+    function comprobarBodega2() {
+        let todasCorrectas = true;
+        let huecosLlenados = 0;
+
+        for (const id of huecosBodega) {
+            const hueco = document.getElementById(id);
+            const respuesta = respuestasBodega[id];
+            const palabraActual = hueco.dataset.palabra || '';
+
+            hueco.classList.remove('correcto', 'incorrecto');
+
+            if (palabraActual === '') {
+                todasCorrectas = false;
+                continue;
+            }
+
+            huecosLlenados++;
+
+            if (palabraActual === respuesta) {
+                hueco.classList.add('correcto');
+            } else {
+                hueco.classList.add('incorrecto');
+                todasCorrectas = false;
+            }
+        }
+
+        const resultado = document.getElementById('resultadoBodega');
+
+        if (huecosLlenados < huecosBodega.length) {
+            resultado.innerHTML = `⚠️ Completa todos los huecos (${huecosLlenados}/${huecosBodega.length}).`;
+            resultado.style.color = '#b8935a';
+            return;
+        }
+
+        if (todasCorrectas) {
+            resultado.innerHTML = '✅ ¡Perfecto! Todas las palabras están en su lugar.';
+            resultado.style.color = '#1d6b2e';
+            document.getElementById('pistaBodega2').classList.add('mostrar');
+            document.getElementById('bravoBodega2').classList.add('mostrar');
+            document.getElementById('siguienteBodega2').style.display = 'inline-block';
+            const btnComprobar = document.querySelector('#locacion2 .btn-comprobar.verde');
+            if (btnComprobar) {
+                btnComprobar.disabled = true;
+                btnComprobar.style.opacity = '0.5';
+            }
+        } else {
+            resultado.innerHTML = '❌ Algunas palabras no están en el lugar correcto. Revisa e inténtalo de nuevo.';
+            resultado.style.color = '#a13d2a';
+        }
+    }
+
+    function mostrarRespuestasBodega() {
+        for (const id of huecosBodega) {
+            const hueco = document.getElementById(id);
+            const respuesta = respuestasBodega[id];
+            const palabraActual = hueco.dataset.palabra || '';
+
+            if (palabraActual === '') {
+                const palabraEl = document.querySelector(`#locacion2 .palabra-draggable[data-palabra="${respuesta}"]`);
+                if (palabraEl && !palabraEl.classList.contains('usada')) {
+                    hueco.textContent = palabraEl.textContent.trim();
+                    hueco.dataset.palabra = respuesta;
+                    hueco.classList.add('llenado');
+                    palabraEl.classList.add('usada');
+                    palabrasUsadasBodega.add(respuesta);
+                }
+            }
+            hueco.classList.remove('correcto', 'incorrecto');
+            hueco.classList.add('correcto');
+        }
+        document.getElementById('resultadoBodega').innerHTML = '📖 Respuestas mostradas.';
+        document.getElementById('resultadoBodega').style.color = '#2b1c0e';
+    }
+
+    // ============================================================
+    // COMPROBAR MERCADO
+    // ============================================================
+    function comprobarMercado() {
+        let todasCorrectas = true;
+        let respondidas = 0;
+
+        for (const [key, correcta] of Object.entries(respuestasMercado)) {
+            const radios = document.getElementsByName(key);
+            let seleccionado = null;
+            for (const r of radios) {
+                if (r.checked) { seleccionado = r.value; break; }
+            }
+            const feedback = document.getElementById('feedback-' + key);
+
+            if (seleccionado === null) {
+                feedback.className = 'feedback fallo';
+                feedback.innerHTML = '❌ Por favor, selecciona una opción.';
+                todasCorrectas = false;
+                continue;
+            }
+            respondidas++;
+
+            if (seleccionado === correcta) {
+                feedback.className = 'feedback acierto';
+                feedback.innerHTML = '✅ ¡Correcto!';
+                const labels = document.querySelectorAll(`input[name="${key}"]`);
+                labels.forEach(l => {
+                    l.closest('label').classList.remove('correcta', 'incorrecta');
+                    if (l.value === correcta) l.closest('label').classList.add('correcta');
+                });
+            } else {
+                feedback.className = 'feedback fallo';
+                feedback.innerHTML = `❌ Incorrecto. La respuesta correcta era: <span class="respuesta-correcta">"${correcta}"</span>`;
+                todasCorrectas = false;
+                const labels = document.querySelectorAll(`input[name="${key}"]`);
+                labels.forEach(l => {
+                    l.closest('label').classList.remove('correcta', 'incorrecta');
+                    if (l.value === correcta) l.closest('label').classList.add('correcta');
+                    if (l.checked && l.value !== correcta) l.closest('label').classList.add('incorrecta');
+                });
+            }
+        }
+
+        if (respondidas === 0) {
+            alert('Por favor, responde todas las preguntas.');
+            return;
+        }
+
+        if (todasCorrectas) {
+            document.getElementById('bravoMercado').classList.add('mostrar');
+            document.getElementById('pistaMercado').classList.add('mostrar');
+            pistasEncontradas++;
+            document.getElementById('siguienteMercado').style.display = 'inline-block';
+            document.querySelector('#locacion3 .btn-comprobar').disabled = true;
+            document.querySelector('#locacion3 .btn-comprobar').style.opacity = '0.5';
+        } else {
+            alert('❌ Algunas respuestas no son correctas. Revisa e inténtalo de nuevo.');
+        }
+    }
+
+    // ============================================================
+    // COMPROBAR PLAZA
+    // ============================================================
+    function comprobarPlaza() {
+        let todasCorrectas = true;
+        let respondidas = 0;
+
+        for (const [key, correcta] of Object.entries(respuestasPlaza)) {
+            const radios = document.getElementsByName(key);
+            let seleccionado = null;
+            for (const r of radios) {
+                if (r.checked) { seleccionado = r.value; break; }
+            }
+            const feedback = document.getElementById('feedback-' + key);
+
+            if (seleccionado === null) {
+                feedback.className = 'feedback fallo';
+                feedback.innerHTML = '❌ Por favor, selecciona una opción.';
+                todasCorrectas = false;
+                continue;
+            }
+            respondidas++;
+
+            if (seleccionado === correcta) {
+                feedback.className = 'feedback acierto';
+                feedback.innerHTML = '✅ ¡Correcto!';
+                const labels = document.querySelectorAll(`input[name="${key}"]`);
+                labels.forEach(l => {
+                    l.closest('label').classList.remove('correcta', 'incorrecta');
+                    if (l.value === correcta) l.closest('label').classList.add('correcta');
+                });
+            } else {
+                feedback.className = 'feedback fallo';
+                feedback.innerHTML = `❌ Incorrecto. La respuesta correcta era: <span class="respuesta-correcta">"${correcta}"</span>`;
+                todasCorrectas = false;
+                const labels = document.querySelectorAll(`input[name="${key}"]`);
+                labels.forEach(l => {
+                    l.closest('label').classList.remove('correcta', 'incorrecta');
+                    if (l.value === correcta) l.closest('label').classList.add('correcta');
+                    if (l.checked && l.value !== correcta) l.closest('label').classList.add('incorrecta');
+                });
+            }
+        }
+
+        if (respondidas === 0) {
+            alert('Por favor, responde todas las preguntas.');
+            return;
+        }
+
+        if (todasCorrectas) {
+            document.getElementById('bravoPlaza').classList.add('mostrar');
+            document.getElementById('pistaPlaza').classList.add('mostrar');
+            pistasEncontradas++;
+            document.getElementById('siguientePlaza').style.display = 'inline-block';
+            document.querySelector('#locacion4 .btn-comprobar').disabled = true;
+            document.querySelector('#locacion4 .btn-comprobar').style.opacity = '0.5';
+        } else {
+            alert('❌ Algunas respuestas no son correctas. Revisa e inténtalo de nuevo.');
+        }
+    }
+
+    // ============================================================
+    // SELECCIONAR SOSPECHOSO
+    // ============================================================
+    function seleccionarSospechoso(sospechoso) {
+        if (juegoTerminado) return;
+        sospechosoSeleccionado = sospechoso;
+        document.querySelectorAll('.sospechoso').forEach(el => {
+            el.classList.remove('seleccionado');
+            if (el.dataset.sospechoso === sospechoso) {
+                el.classList.add('seleccionado');
+            }
+        });
+    }
+
+    // ============================================================
+    // ACUSAR
+    // ============================================================
+    function acusar() {
+        if (juegoTerminado) return;
+        if (!sospechosoSeleccionado) {
+            alert('🔍 Selecciona un sospechoso antes de acusar.');
+            return;
+        }
+
+        const resultado = document.getElementById('resultadoFinal');
+        const culpable = 'amante'; // Enrique Peralta es el culpable
+
+        document.querySelectorAll('.sospechoso').forEach(el => {
+            if (el.dataset.sospechoso === culpable) {
+                el.classList.add('correcto');
+            } else {
+                el.classList.add('incorrecto');
+            }
+        });
+
+        juegoTerminado = true;
+
+        if (sospechosoSeleccionado === culpable) {
+            resultado.className = 'resultado-final exito';
+            resultado.innerHTML = '✅ ¡Sí, correcto! Este hombre es el culpable. ¡Buen trabajo! 🎉';
+        } else {
+            resultado.className = 'resultado-final fracaso';
+            resultado.innerHTML = '❌ No, ese no es el culpable. Sigue investigando... 🔍';
+        }
+
+        document.getElementById('btnAcusar').disabled = true;
+        document.getElementById('btnAcusar').style.opacity = '0.5';
+    }
+
+    // ============================================================
+    // REINICIAR JUEGO
+    // ============================================================
+    function reiniciarJuego() {
+        locacionActual = 1;
+        pistasEncontradas = 0;
+        sospechosoSeleccionado = null;
+        juegoTerminado = false;
+
+        document.querySelectorAll('input[type="radio"]').forEach(el => {
+            el.checked = false;
+            el.closest('label').classList.remove('correcta', 'incorrecta', 'seleccionado');
+        });
+
+        document.querySelectorAll('.feedback').forEach(el => {
+            el.className = 'feedback';
+            el.innerHTML = '';
+        });
+
+        document.querySelectorAll('.pista').forEach(el => el.classList.remove('mostrar'));
+        document.querySelectorAll('.mensaje-bravo').forEach(el => el.classList.remove('mostrar'));
+
+        document.querySelectorAll('.btn-comprobar').forEach(el => {
+            el.disabled = false;
+            el.style.opacity = '1';
+        });
+        document.querySelectorAll('.btn-siguiente').forEach(el => {
+            el.style.display = 'none';
+        });
+
+        limpiarBodega();
+
+        document.getElementById('btnAcusar').disabled = false;
+        document.getElementById('btnAcusar').style.opacity = '1';
+
+        document.getElementById('resultadoFinal').className = 'resultado-final';
+        document.getElementById('resultadoFinal').innerHTML = '';
+
+        document.querySelectorAll('.sospechoso').forEach(el => {
+            el.classList.remove('seleccionado', 'correcto', 'incorrecto');
+        });
+
+        document.getElementById('final').classList.add('oculto');
+        mostrarLocacion(1);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ============================================================
+    // INICIALIZAR
+    // ============================================================
+    mostrarLocacion(1);
+</script>
+</body>
+</html>
