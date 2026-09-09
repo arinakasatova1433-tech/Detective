@@ -11,3 +11,4 @@ Sospechoso https://arinakasatova1433-tech.github.io/Detective/Sospechoso1.html
 
 Detective3Indefenido https://arinakasatova1433-tech.github.io/Detective/Detective3Indefenido.html
 
+3 + Detective3Indefenido https://arinakasatova1433-tech.github.io/Detective/Detective3.html
