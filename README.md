@@ -13,6 +13,6 @@ Detective3Indefenido https://arinakasatova1433-tech.github.io/Detective/Detectiv
 
 3 + Detective3Indefenido https://arinakasatova1433-tech.github.io/Detective/Detective3.html
 
-DetectivODOI
+DetectivODOI https://arinakasatova1433-tech.github.io/Detective/DetectiveODOI.html
 
-Detectiv5PerfIndef
+Detectiv5PerfIndef https://arinakasatova1433-tech.github.io/Detective/Detectiv5PerfIndef
