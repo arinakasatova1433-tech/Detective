@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 Detective · Indefinido · OD / OI</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background: #2a1f18;
+            font-family: 'Segoe UI', 'Courier New', monospace;
+            padding: 2rem 1rem;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            max-width: 1100px;
+            width: 100%;
+            background: #f0e8da;
+            background-image: repeating-linear-gradient(45deg, #e0d5c0 0px, #e0d5c0 2px, #f0e8da 2px, #f0e8da 4px);
+            padding: 2rem 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.8), 0 0 0 4px #5a4a3a inset, 0 0 0 6px #8a7a62 inset;
+            border: 8px solid #3d2e1f;
+            position: relative;
+        }
+        .container::before {
+            content: "🔍";
+            position: absolute;
+            top: -10px;
+            right: 30px;
+            font-size: 3.5rem;
+            opacity: 0.25;
+            transform: rotate(15deg);
+        }
+        h1 {
+            font-size: 2.6rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: #2b1c0e;
+            border-bottom: 4px double #6b4f34;
+            padding-bottom: 0.3rem;
+            font-family: 'Times New Roman', serif;
+            text-shadow: 3px 3px 0 rgba(90, 63, 43, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        h1 small {
+            font-size: 1rem;
+            letter-spacing: 2px;
+            background: #2b1c0e;
+            color: #e6dccc;
+            padding: 0.1rem 1.2rem;
+            border-radius: 30px;
+            font-weight: 400;
+            margin-left: auto;
+        }
+        .fecha {
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: #4d3c2b;
+            background: #dacfc0;
+            display: inline-block;
+            padding: 0.2rem 1.5rem;
+            border-radius: 20px;
+            margin: 0.5rem 0 1.5rem;
+            border: 1px solid #9b8a78;
+            font-weight: 600;
+        }
+
+        .section-title {
+            background: #dacfc0;
+            padding: 0.3rem 1.5rem;
+            border-radius: 40px;
+            display: inline-block;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #2b1c0e;
+            border: 1px solid #8a7a62;
+            margin: 1.5rem 0 0.8rem;
+        }
+        .section-title span { margin-right: 0.5rem; }
+
+        /* TEXTO DEL INTERROGATORIO */
+        .texto-misterioso {
+            background: #fcf7f0;
+            padding: 1.5rem 2rem;
+            border-radius: 12px;
+            border-left: 8px solid #6b4f36;
+            box-shadow: inset 0 0 0 1px #d6cbbc, 0 6px 12px rgba(0,0,0,0.1);
+            font-size: 1rem;
+            line-height: 2.2;
+            color: #1e150e;
+            margin-bottom: 1.5rem;
+        }
+        .texto-misterioso .speaker {
+            font-weight: 700;
+            color: #7f3f2a;
+        }
+        .texto-misterioso .speaker-other {
+            font-weight: 700;
+            color: #2b5a6b;
+        }
+        .texto-misterioso .dialogo {
+            margin-left: 1.2rem;
+            padding-left: 0.5rem;
+            border-left: 2px dotted #aa8b74;
+        }
+
+        .texto-misterioso input.verb-input {
+            border: none;
+            border-bottom: 3px solid #7f6242;
+            background: transparent;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1rem;
+            width: 120px;
+            padding: 0 0.3rem;
+            color: #1f150c;
+            font-weight: 700;
+            transition: 0.2s;
+            text-align: center;
+        }
+        .texto-misterioso input.verb-input:focus {
+            outline: none;
+            border-bottom-color: #b14d27;
+            background: #f0e3d0;
+        }
+        .texto-misterioso input.verb-input.correcto {
+            border-bottom-color: #1d6b2e;
+            background: rgba(29, 107, 46, 0.08);
+        }
+        .texto-misterioso input.verb-input.incorrecto {
+            border-bottom-color: #a13d2a;
+            background: rgba(161, 61, 42, 0.08);
+        }
+
+        .instruccion {
+            background: #dacfc0;
+            padding: 0.6rem 1.5rem;
+            border-radius: 40px;
+            display: inline-block;
+            font-size: 0.95rem;
+            color: #2b1c0e;
+            border: 1px solid #8a7a62;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        /* TEORÍA OD / OI - TABLA */
+        .teoria-tabla {
+            background: #fcf7f0;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border: 2px solid #8a7a62;
+            margin: 1rem 0;
+        }
+        .teoria-tabla table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+        .teoria-tabla th {
+            background: #4d3a28;
+            color: #f5e6c8;
+            padding: 0.7rem 0.8rem;
+            text-align: left;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        .teoria-tabla td {
+            padding: 0.7rem 0.8rem;
+            border-bottom: 1px solid #d6cbbc;
+            vertical-align: top;
+        }
+        .teoria-tabla tr:last-child td {
+            border-bottom: none;
+        }
+        .teoria-tabla tr:nth-child(even) td {
+            background: #faf3e9;
+        }
+        .teoria-tabla .badge-oi {
+            background: #2d7a3a;
+            color: #fff;
+            padding: 0.1rem 0.6rem;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+        .teoria-tabla .badge-od {
+            background: #1d5a8a;
+            color: #fff;
+            padding: 0.1rem 0.6rem;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+        .teoria-tabla .ejemplo {
+            font-style: italic;
+            color: #3d3228;
+        }
+        .teoria-tabla .ejemplo strong {
+            color: #7f3f2a;
+            font-style: normal;
+        }
+        .teoria-tabla .pronombres {
+            font-weight: 700;
+            color: #2b1c0e;
+            background: #e8dccc;
+            padding: 0.1rem 0.5rem;
+            border-radius: 12px;
+            display: inline-block;
+        }
+
+        /* VER - explicación especial */
+        .ver-explicacion {
+            background: #fcf7f0;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            border-left: 6px solid #b8935a;
+            margin-top: 1rem;
+        }
+        .ver-explicacion h4 {
+            color: #7f5a3a;
+            margin-bottom: 0.3rem;
+        }
+        .ver-explicacion .ejemplo {
+            background: #f0e0c0;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            display: inline-block;
+            margin-top: 0.3rem;
+        }
+
+        /* COMBINACIÓN */
+        .combinacion-box {
+            background: #fcf7f0;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            border-left: 6px solid #7f5a3a;
+            margin-top: 1rem;
+        }
+        .combinacion-box h4 {
+            color: #7f5a3a;
+            margin-bottom: 0.3rem;
+        }
+        .combinacion-box .regla {
+            background: #f0e0c0;
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+            display: inline-block;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        /* EJERCICIOS */
+        .ejercicio {
+            background: #fcf7f0;
+            padding: 1.2rem 1.8rem;
+            border-radius: 16px;
+            margin: 1rem 0;
+            border-left: 8px solid #7f6242;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .ejercicio .titulo-ej {
+            font-weight: 700;
+            color: #2b1c0e;
+            font-size: 1.1rem;
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .ejercicio .titulo-ej .badge {
+            background: #7f6242;
+            color: #fcf7f0;
+            padding: 0.1rem 0.8rem;
+            border-radius: 30px;
+            font-size: 0.75rem;
+        }
+        .item-ej {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: baseline;
+            gap: 4px 8px;
+            margin-bottom: 0.7rem;
+            background: #faf3e9;
+            padding: 0.4rem 0.8rem;
+            border-radius: 40px;
+        }
+        .item-ej .numero {
+            font-weight: 700;
+            color: #7f6242;
+            min-width: 28px;
+        }
+        .item-ej input {
+            border: none;
+            border-bottom: 2px solid #7f6242;
+            background: transparent;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1rem;
+            width: 150px;
+            padding: 0.1rem 0.3rem;
+            color: #1f150c;
+            font-weight: 600;
+            transition: 0.15s;
+        }
+        .item-ej input:focus {
+            outline: none;
+            border-bottom-color: #b14d27;
+            background: #f0e3d0;
+        }
+        .item-ej input.correcto {
+            border-bottom-color: #1d6b2e;
+            background: rgba(29, 107, 46, 0.08);
+        }
+        .item-ej input.incorrecto {
+            border-bottom-color: #a13d2a;
+            background: rgba(161, 61, 42, 0.08);
+        }
+        .item-ej .texto-base {
+            color: #3d2e1d;
+        }
+
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 1rem 0 0.3rem;
+        }
+        .btn {
+            background: #4d3a28;
+            border: none;
+            color: #f2ecdf;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: 700;
+            font-size: 0.85rem;
+            padding: 0.5rem 1.8rem;
+            border-radius: 60px;
+            letter-spacing: 1.5px;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #1f150c;
+            transition: 0.1s ease;
+            border: 1px solid #7f6242;
+            text-transform: uppercase;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 #1f150c;
+            background: #5f4733;
+        }
+        .btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 0px 0 #1f150c;
+        }
+        .btn-verde {
+            background: #2d5a3b;
+            box-shadow: 0 4px 0 #14331f;
+            border-color: #4b7a58;
+        }
+        .btn-verde:hover { background: #3a704b; }
+        .btn-marron {
+            background: #7f6242;
+            box-shadow: 0 4px 0 #4d351f;
+        }
+        .btn-marron:hover { background: #9c7a56; }
+        .btn-gris {
+            background: #5a4a3a;
+            box-shadow: 0 4px 0 #2f2419;
+        }
+        .btn-gris:hover { background: #6f5c49; }
+
+        .resultado {
+            margin-top: 0.8rem;
+            font-weight: 700;
+            background: #e5d7c4;
+            padding: 0.3rem 1.5rem;
+            border-radius: 40px;
+            display: inline-block;
+            font-size: 0.95rem;
+        }
+
+        .texto-completo {
+            margin-top: 1rem;
+            background: #fcf7f0;
+            padding: 1.5rem 2rem;
+            border-radius: 12px;
+            border-left: 8px solid #2d5a3b;
+            box-shadow: inset 0 0 0 1px #d6cbbc, 0 6px 12px rgba(0,0,0,0.1);
+            font-size: 1rem;
+            line-height: 2.2;
+            color: #1e150e;
+            display: none;
+        }
+        .texto-completo.visible {
+            display: block;
+        }
+        .texto-completo .speaker {
+            font-weight: 700;
+            color: #7f3f2a;
+        }
+        .texto-completo .speaker-other {
+            font-weight: 700;
+            color: #2b5a6b;
+        }
+        .texto-completo .dialogo {
+            margin-left: 1.2rem;
+            padding-left: 0.5rem;
+            border-left: 2px dotted #aa8b74;
+        }
+        .texto-completo .verbo-destacado {
+            color: #1d6b2e;
+            font-weight: 700;
+            background: rgba(29, 107, 46, 0.12);
+            padding: 0 0.3rem;
+            border-radius: 4px;
+        }
+
+        .keys-container {
+            background: #fcf3e0;
+            padding: 1rem 1.5rem;
+            border-radius: 16px;
+            border-left: 6px solid #b8935a;
+            margin-top: 1rem;
+            display: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .keys-container.show { display: block; }
+        .keys-container .key-item {
+            padding: 0.2rem 0;
+            border-bottom: 1px dashed #b8a080;
+            font-size: 0.95rem;
+        }
+        .keys-container .key-item:last-child { border-bottom: none; }
+        .keys-container .key-item .correcta {
+            color: #1d6b2e;
+            font-weight: 700;
+        }
+
+        .footer {
+            margin-top: 2rem;
+            border-top: 2px dotted #7f6242;
+            padding-top: 1rem;
+            text-align: right;
+            color: #4d3a28;
+            letter-spacing: 1px;
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: 700px) {
+            .container { padding: 1.2rem; }
+            .teoria-tabla table { font-size: 0.85rem; }
+            .teoria-tabla th, .teoria-tabla td { padding: 0.4rem 0.5rem; }
+            .item-ej input { width: 120px; }
+            h1 { font-size: 1.8rem; }
+            .texto-misterioso { padding: 1rem; font-size: 0.95rem; }
+            .texto-misterioso input.verb-input { width: 90px; font-size: 0.9rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>
+        <span>🔍 La historia misteriosa</span>
+        <small>Indefinido · OD / OI</small>
+    </h1>
+    <div class="fecha">🗓️ Domingo, 20 de agosto · interrogatorio</div>
+
+    <!-- ====== TEXTO DEL INTERROGATORIO CON HUECOS ====== -->
+    <div class="section-title"><span>📜</span> El interrogatorio</div>
+    <div class="instruccion">
+        ✍️ Completa los verbos en <strong>pretérito indefinido</strong> según el contexto.
+    </div>
+
+    <div class="texto-misterioso" id="textoHuecos">
+        <p>El Inspector <strong>interrogó</strong> a la vecina de la víctima, una anciana de noventa años:</p>
+
+        <p><span class="speaker">Inspector:</span> <span class="dialogo">Señora Jiménez, ¿quiere usted contarnos otra vez lo que nos <input type="text" class="verb-input" id="v1" value=""> (<strong>contar</strong>) cuando encontraron el cadáver?</span></p>
+
+        <p><span class="speaker-other">Sra. J:</span> <span class="dialogo">¿Perdón?</span></p>
+
+        <p><span class="speaker">Inspector:</span> <span class="dialogo">Que qué <input type="text" class="verb-input" id="v2" value=""> (<strong>hacer</strong>) usted ayer por la tarde.</span></p>
+
+        <p><span class="speaker-other">Sra. J:</span> <span class="dialogo">Pues, <input type="text" class="verb-input" id="v3" value=""> (<strong>llegar</strong>) de la iglesia a las cinco de la tarde. En la puerta de mi casa me <input type="text" class="verb-input" id="v4" value=""> (<strong>parar</strong>) y <input type="text" class="verb-input" id="v5" value=""> (<strong>abrir</strong>) el bolso para buscar mi llave, y fue entonces cuando <input type="text" class="verb-input" id="v6" value=""> (<strong>ver</strong>) al señor Martínez entrar en su casa.</span></p>
+
+        <p><span class="speaker">Inspector:</span> <span class="dialogo">¿Está usted segura de que lo <input type="text" class="verb-input" id="v7" value=""> (<strong>ver</strong>) entrar, no salir?</span></p>
+
+        <p><span class="speaker-other">Sra. J:</span> <span class="dialogo">Desde luego, Inspector. El señor Martínez <input type="text" class="verb-input" id="v8" value=""> (<strong>entrar</strong>) y <input type="text" class="verb-input" id="v9" value=""> (<strong>cerrar</strong>) la puerta con llave.</span></p>
+
+        <p><span class="speaker">Inspector:</span> <span class="dialogo">Y luego, ¿qué <input type="text" class="verb-input" id="v10" value=""> (<strong>hacer</strong>) usted? ¿Cómo <input type="text" class="verb-input" id="v11" value=""> (<strong>pasar</strong>) el resto de la noche? ¿Vio u oyó algo?</span></p>
+
+        <p><span class="speaker-other">Sra. J:</span> <span class="dialogo">¿Cómo? Es que no le oigo muy bien.</span></p>
+
+        <p><span class="speaker">Inspector:</span> <span class="dialogo">Que qué <input type="text" class="verb-input" id="v12" value=""> (<strong>hacer</strong>) usted luego.</span></p>
+
+        <p><span class="speaker-other">Sra. J:</span> <span class="dialogo">Bueno, me <input type="text" class="verb-input" id="v13" value=""> (<strong>acostar</strong>) temprano, pero no me <input type="text" class="verb-input" id="v14" value=""> (<strong>dormir</strong>). A eso de las dos de la madrugada <input type="text" class="verb-input" id="v15" value=""> (<strong>oír</strong>) a alguien abrir la puerta de los Martínez. Y después de unos tres minutos <input type="text" class="verb-input" id="v16" value=""> (<strong>oír</strong>) un disparo y un grito... ¡Fue horrible!</span></p>
+
+        <p><span class="speaker">Inspector:</span> <span class="dialogo">¿<input type="text" class="verb-input" id="v17" value=""> (<strong>ver</strong>) usted quién fue el que entró?</span></p>
+
+        <p><span class="speaker-other">Sra. J:</span> <span class="dialogo">No lo <input type="text" class="verb-input" id="v18" value=""> (<strong>ver</strong>), inspector, pero estoy segura de que el asesino fue una de estas tres personas: su esposo, su amante (Enrique Peralta, el famoso cantante) o la esposa del cantante, Lola Sánchez. Sí, una de esas tres personas...</span></p>
+    </div>
+
+    <div class="btn-group">
+        <button class="btn btn-verde" id="checkBtn">✅ Autocorrección</button>
+        <button class="btn btn-marron" id="showAnswersBtn">🔍 Mostrar texto completo</button>
+        <button class="btn btn-gris" id="clearBtn">🧹 Limpiar</button>
+    </div>
+    <div id="resultado" class="resultado"></div>
+
+    <!-- ====== TEXTO COMPLETO CON RESPUESTAS ====== -->
+    <div id="textoCompleto" class="texto-completo">
+        <p>El Inspector <span class="verbo-destacado">interrogó</span> a la vecina de la víctima, una anciana de noventa años:</p>
+
+        <p><span class="speaker">Inspector:</span> <span class="dialogo">Señora Jiménez, ¿quiere usted contarnos otra vez lo que nos <span class="verbo-destacado">contó</span> cuando encontraron el cadáver?</span></p>
+
+        <p><span class="speaker-other">Sra. J:</span> <span class="dialogo">¿Perdón?</span></p>
+
+        <p><span class="speaker">Inspector:</span> <span class="dialogo">Que qué <span class="verbo-destacado">hizo</span> usted ayer por la tarde.</span></p>
+
+        <p><span class="speaker-other">Sra. J:</span> <span class="dialogo">Pues, <span class="verbo-destacado">llegué</span> de la iglesia a las cinco de la tarde. En la puerta de mi casa me <span class="verbo-destacado">paré</span> y <span class="verbo-destacado">abrí</span> el bolso para buscar mi llave, y fue entonces cuando <span class="verbo-destacado">vi</span> al señor Martínez entrar en su casa.</span></p>
+
+        <p><span class="speaker">Inspector:</span> <span class="dialogo">¿Está usted segura de que lo <span class="verbo-destacado">vio</span> entrar, no salir?</span></p>
+
+        <p><span class="speaker-other">Sra. J:</span> <span class="dialogo">Desde luego, Inspector. El señor Martínez <span class="verbo-destacado">entró</span> y <span class="verbo-destacado">cerró</span> la puerta con llave.</span></p>
+
+        <p><span class="speaker">Inspector:</span> <span class="dialogo">Y luego, ¿qué <span class="verbo-destacado">hizo</span> usted? ¿Cómo <span class="verbo-destacado">pasó</span> el resto de la noche? ¿Vio u oyó algo?</span></p>
+
+        <p><span class="speaker-other">Sra. J:</span> <span class="dialogo">¿Cómo? Es que no le oigo muy bien.</span></p>
+
+        <p><span class="speaker">Inspector:</span> <span class="dialogo">Que qué <span class="verbo-destacado">hizo</span> usted luego.</span></p>
+
+        <p><span class="speaker-other">Sra. J:</span> <span class="dialogo">Bueno, me <span class="verbo-destacado">acosté</span> temprano, pero no me <span class="verbo-destacado">dormí</span>. A eso de las dos de la madrugada <span class="verbo-destacado">oí</span> a alguien abrir la puerta de los Martínez. Y después de unos tres minutos <span class="verbo-destacado">oí</span> un disparo y un grito... ¡Fue horrible!</span></p>
+
+        <p><span class="speaker">Inspector:</span> <span class="dialogo">¿<span class="verbo-destacado">Vio</span> usted quién fue el que entró?</span></p>
+
+        <p><span class="speaker-other">Sra. J:</span> <span class="dialogo">No lo <span class="verbo-destacado">vi</span>, inspector, pero estoy segura de que el asesino fue una de estas tres personas: su esposo, su amante (Enrique Peralta, el famoso cantante) o la esposa del cantante, Lola Sánchez. Sí, una de esas tres personas...</span></p>
+    </div>
+
+    <hr style="border:1px dashed #8a7a62; margin:2rem 0;">
+
+    <!-- ====== EJERCICIO 1: OD ====== -->
+    <div class="section-title"><span>✍️</span> Práctica detectivesca</div>
+
+    <div class="ejercicio">
+        <div class="titulo-ej">
+            <span>1️⃣ Objeto Directo (OD) — <strong>¿Qué?</strong></span>
+            <span class="badge">me · te · lo · la · nos · os · los · las</span>
+        </div>
+        <p style="font-size:0.9rem; color:#4d3c2b; margin-bottom:0.8rem;">Sustituye el complemento directo por el pronombre adecuado. <strong>¡Sin preposición!</strong></p>
+        <div id="odItems">
+            <div class="item-ej"><span class="numero">1.</span> <span class="texto-base">El Inspector <strong>oyó</strong> el disparo.</span> → El Inspector <input type="text" id="od1" value=""> oyó.</div>
+            <div class="item-ej"><span class="numero">2.</span> <span class="texto-base">Ella <strong>vio</strong> al señor Martínez.</span> → Ella <input type="text" id="od2" value=""> vio.</div>
+            <div class="item-ej"><span class="numero">3.</span> <span class="texto-base">Nosotros <strong>encontramos</strong> el cadáver.</span> → Nosotros <input type="text" id="od3" value=""> encontramos.</div>
+            <div class="item-ej"><span class="numero">4.</span> <span class="texto-base">Tú <strong>escuchaste</strong> el grito.</span> → Tú <input type="text" id="od4" value=""> escuchaste.</div>
+            <div class="item-ej"><span class="numero">5.</span> <span class="texto-base">Ellos <strong>abrieron</strong> la puerta.</span> → Ellos <input type="text" id="od5" value=""> abrieron.</div>
+            <div class="item-ej"><span class="numero">6.</span> <span class="texto-base">Yo <strong>veo</strong> a los sospechosos.</span> → Yo <input type="text" id="od6" value=""> veo.</div>
+        </div>
+        <div class="btn-group">
+            <button class="btn btn-verde" onclick="checkOD()">✅ Autocorrección</button>
+            <button class="btn btn-marron" onclick="showODKeys()">🔍 Mostrar respuestas</button>
+            <button class="btn btn-gris" onclick="clearOD()">🧹 Limpiar</button>
+        </div>
+        <div id="resultadoOD" class="resultado"></div>
+        <div id="keysOD" class="keys-container"></div>
+    </div>
+
+    <!-- ====== TEORÍA OD / OI (después del ejercicio 1) ====== -->
+    <div class="section-title"><span>📚</span> Teoría · OD vs OI</div>
+
+    <div class="teoria-tabla">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width:15%;">Función</th>
+                    <th style="width:22%;">¿Para qué sirve?</th>
+                    <th style="width:15%;">Pregunta</th>
+                    <th style="width:20%;">Pronombre</th>
+                    <th style="width:28%;">Ejemplo</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span class="badge-oi">OI</span></td>
+                    <td>Indica <strong>a quién</strong> o <strong>para quién</strong> va dirigida la acción.</td>
+                    <td><strong>¿A quién?</strong></td>
+                    <td><span class="pronombres">me · te · le · nos · os · les</span></td>
+                    <td><span class="ejemplo"><strong>Doy</strong> el libro <strong>a Juan</strong>.<br>→ <strong>Le</strong> doy el libro.</span></td>
+                </tr>
+                <tr>
+                    <td><span class="badge-od">OD</span><br><span style="font-size:0.75rem; color:#4d3c2b;">(A personal)</span></td>
+                    <td><strong>"Subraya"</strong> el objeto animado (persona o animal).<br><span style="font-size:0.85rem; color:#4d3c2b;">No cambia el caso, solo marca que es OD.</span></td>
+                    <td><strong>¿Qué? / ¿A quién?</strong></td>
+                    <td><span class="pronombres">me · te · lo · la · nos · os · los · las</span></td>
+                    <td><span class="ejemplo"><strong>Veo</strong> <strong>a Juan</strong>.<br>→ <strong>Lo</strong> veo.</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Explicación especial sobre VER -->
+    <div class="ver-explicacion">
+        <h4>👁️ Verbo <strong>VER</strong> — siempre lleva OD con "a personal"</h4>
+        <p style="font-size:0.95rem; color:#4d3c2b;">
+            El verbo <strong>ver</strong> es <strong>transitivo</strong> y siempre tiene un <strong>Objeto Directo</strong>.
+            Cuando el OD es una persona o animal, usamos la <strong>"a personal"</strong>.
+        </p>
+        <div class="ejemplo">📌 <strong>Veo a María.</strong> → <strong>La</strong> veo. (OD = a María → la)</div>
+        <div class="ejemplo">📌 <strong>Veo a los niños.</strong> → <strong>Los</strong> veo. (OD = a los niños → los)</div>
+        <div class="ejemplo">📌 <strong>Veo el coche.</strong> → <strong>Lo</strong> veo. (OD = el coche → lo, sin "a" porque es objeto)</div>
+        <p style="font-size:0.9rem; color:#4d3c2b; margin-top:0.3rem;">
+            ⚠️ Importante: <strong>"a"</strong> con personas no es OI, es <strong>marca de OD animado</strong> (A personal).
+            Para saber si es OD u OI, preguntamos <strong>¿Qué?</strong> (OD) o <strong>¿A quién?</strong> (OI).
+        </p>
+    </div>
+
+    <!-- COMBINACIÓN -->
+    <div class="combinacion-box">
+        <h4>🟣 Combinación OD + OI</h4>
+        <p style="font-size:0.95rem; margin-bottom:0.3rem;">Cuando aparecen juntos, el <strong>OI</strong> (le/les) cambia a <strong>se</strong> antes de OD (lo/la/los/las).</p>
+        <div class="regla">📌 Regla: <strong>le/les + lo/la/los/las → se lo/la/los/las</strong></div>
+        <div class="ejemplo" style="margin-top:0.5rem; background:#f0e0c0; padding:0.3rem 0.8rem; border-radius:20px; display:inline-block;">
+            📌 Ej: <strong>Doy</strong> el libro <strong>a la vecina</strong> → <strong>Se lo</strong> doy.
+        </div>
+    </div>
+
+    <hr style="border:1px dashed #8a7a62; margin:2rem 0;">
+
+    <!-- ====== EJERCICIO 2: OI ====== -->
+    <div class="ejercicio">
+        <div class="titulo-ej">
+            <span>2️⃣ Objeto Indirecto (OI) — <strong>¿A quién?</strong></span>
+            <span class="badge">me · te · le · nos · os · les</span>
+        </div>
+        <p style="font-size:0.9rem; color:#4d3c2b; margin-bottom:0.8rem;">Sustituye el complemento indirecto por el pronombre adecuado. <strong>¡Con preposición "a"!</strong></p>
+        <div id="oiItems">
+            <div class="item-ej"><span class="numero">1.</span> <span class="texto-base">El Inspector <strong>preguntó</strong> a la vecina.</span> → El Inspector <input type="text" id="oi1" value=""> preguntó.</div>
+            <div class="item-ej"><span class="numero">2.</span> <span class="texto-base">La señora <strong>contó</strong> al Inspector lo que pasó.</span> → La señora <input type="text" id="oi2" value=""> contó lo que pasó.</div>
+            <div class="item-ej"><span class="numero">3.</span> <span class="texto-base">El asesino <strong>disparó</strong> a la víctima.</span> → El asesino <input type="text" id="oi3" value=""> disparó.</div>
+            <div class="item-ej"><span class="numero">4.</span> <span class="texto-base">Yo <strong>digo</strong> la verdad a ti.</span> → Yo <input type="text" id="oi4" value=""> digo la verdad.</div>
+            <div class="item-ej"><span class="numero">5.</span> <span class="texto-base">Ellos <strong>explican</strong> el caso a nosotros.</span> → Ellos <input type="text" id="oi5" value=""> explican el caso.</div>
+            <div class="item-ej"><span class="numero">6.</span> <span class="texto-base">Tú <strong>muestras</strong> las pruebas a mí.</span> → Tú <input type="text" id="oi6" value=""> muestras las pruebas.</div>
+        </div>
+        <div class="btn-group">
+            <button class="btn btn-verde" onclick="checkOI()">✅ Autocorrección</button>
+            <button class="btn btn-marron" onclick="showOIKeys()">🔍 Mostrar respuestas</button>
+            <button class="btn btn-gris" onclick="clearOI()">🧹 Limpiar</button>
+        </div>
+        <div id="resultadoOI" class="resultado"></div>
+        <div id="keysOI" class="keys-container"></div>
+    </div>
+
+    <!-- ====== EJERCICIO 3: OD + OI ====== -->
+    <div class="ejercicio">
+        <div class="titulo-ej">
+            <span>3️⃣ OD + OI (combinación)</span>
+            <span class="badge">se lo · se la · se los · se las · me lo · te lo · nos lo · os lo</span>
+        </div>
+        <p style="font-size:0.9rem; color:#4d3c2b; margin-bottom:0.8rem;">Sustituye ambos complementos. <strong>OI + OD → se + OD</strong> (cuando OI es le/les).</p>
+        <div id="combiItems">
+            <div class="item-ej"><span class="numero">1.</span> <span class="texto-base">El Inspector <strong>dio</strong> el informe <strong>al juez</strong>.</span> → El Inspector <input type="text" id="c1" value=""> dio.</div>
+            <div class="item-ej"><span class="numero">2.</span> <span class="texto-base">La vecina <strong>contó</strong> la verdad <strong>al Inspector</strong>.</span> → La vecina <input type="text" id="c2" value=""> contó.</div>
+            <div class="item-ej"><span class="numero">3.</span> <span class="texto-base">Nosotros <strong>entregamos</strong> las pruebas <strong>al abogado</strong>.</span> → Nosotros <input type="text" id="c3" value=""> entregamos.</div>
+            <div class="item-ej"><span class="numero">4.</span> <span class="texto-base">Tú <strong>mostraste</strong> las fotos <strong>a la víctima</strong>.</span> → Tú <input type="text" id="c4" value=""> mostraste.</div>
+            <div class="item-ej"><span class="numero">5.</span> <span class="texto-base">Yo <strong>compré</strong> un regalo <strong>para mi esposa</strong>.</span> → Yo <input type="text" id="c5" value=""> compré.</div>
+            <div class="item-ej"><span class="numero">6.</span> <span class="texto-base">Ellos <strong>explicaron</strong> el plan <strong>a nosotros</strong>.</span> → Ellos <input type="text" id="c6" value=""> explicaron.</div>
+            <div class="item-ej"><span class="numero">7.</span> <span class="texto-base">Vosotros <strong>decís</strong> el secreto <strong>a mí</strong>.</span> → Vosotros <input type="text" id="c7" value=""> decís.</div>
+        </div>
+        <div class="btn-group">
+            <button class="btn btn-verde" onclick="checkCombi()">✅ Autocorrección</button>
+            <button class="btn btn-marron" onclick="showCombiKeys()">🔍 Mostrar respuestas</button>
+            <button class="btn btn-gris" onclick="clearCombi()">🧹 Limpiar</button>
+        </div>
+        <div id="resultadoCombi" class="resultado"></div>
+        <div id="keysCombi" class="keys-container"></div>
+    </div>
+
+    <div class="footer">
+        🔍 OD = ¿Qué? · OI = ¿A quién? · A personal = OD animado
+    </div>
+</div>
+
+<script>
+    // ============================================================
+    // INDEFINIDO - TEXTO DEL INTERROGATORIO
+    // ============================================================
+    (function() {
+        const respuestas = [
+            "contó", "hizo", "llegué", "paré", "abrí", "vi", "vio", "entró", "cerró",
+            "hizo", "pasó", "hizo", "acosté", "dormí", "oí", "oí", "Vio", "vi"
+        ];
+        const ids = ['v1','v2','v3','v4','v5','v6','v7','v8','v9','v10','v11','v12','v13','v14','v15','v16','v17','v18'];
+
+        function getValues() {
+            return ids.map(id => document.getElementById(id).value.trim());
+        }
+        function setValues(arr) {
+            ids.forEach((id, idx) => document.getElementById(id).value = arr[idx] || '');
+        }
+        function limpiarEstilos() {
+            ids.forEach(id => {
+                const el = document.getElementById(id);
+                el.classList.remove('correcto', 'incorrecto');
+                el.style.borderBottomColor = '#7f6242';
+            });
+        }
+        function checkAnswers() {
+            const vals = getValues();
+            let ok = 0, total = respuestas.length;
+            vals.forEach((v, i) => {
+                const input = document.getElementById(ids[i]);
+                const norm = v.toLowerCase().replace(/\s+/g, ' ');
+                const correct = respuestas[i].toLowerCase();
+                input.classList.remove('correcto', 'incorrecto');
+                if (norm === correct) {
+                    ok++;
+                    input.classList.add('correcto');
+                    input.style.borderBottomColor = '#1d6b2e';
+                } else {
+                    input.classList.add('incorrecto');
+                    input.style.borderBottomColor = '#a13d2a';
+                }
+            });
+            const resultDiv = document.getElementById('resultado');
+            if (ok === total) {
+                resultDiv.innerHTML = '✅ ¡Perfecto! Todas las formas son correctas.';
+                resultDiv.style.color = '#1d6b2e';
+            } else {
+                resultDiv.innerHTML = `🟡 ${ok}/${total} correctas. Revisa las que están en rojo.`;
+                resultDiv.style.color = '#a13d2a';
+            }
+        }
+        function showFullText() {
+            const container = document.getElementById('textoCompleto');
+            container.classList.toggle('visible');
+            const btn = document.getElementById('showAnswersBtn');
+            btn.textContent = container.classList.contains('visible') ? '🙈 Ocultar texto completo' : '🔍 Mostrar texto completo';
+        }
+        function clearAll() {
+            setValues(new Array(ids.length).fill(''));
+            limpiarEstilos();
+            document.getElementById('resultado').innerHTML = '';
+            const container = document.getElementById('textoCompleto');
+            if (container.classList.contains('visible')) {
+                container.classList.remove('visible');
+                document.getElementById('showAnswersBtn').textContent = '🔍 Mostrar texto completo';
+            }
+        }
+        document.getElementById('checkBtn').addEventListener('click', checkAnswers);
+        document.getElementById('showAnswersBtn').addEventListener('click', showFullText);
+        document.getElementById('clearBtn').addEventListener('click', clearAll);
+        limpiarEstilos();
+        ids.forEach(id => {
+            document.getElementById(id).addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') checkAnswers();
+            });
+        });
+    })();
+
+    // ============================================================
+    // EJERCICIO 1: OD
+    // ============================================================
+    const odCorrectas = ["lo", "lo", "lo", "lo", "la", "los"];
+    const odIds = ['od1','od2','od3','od4','od5','od6'];
+
+    function getODValues() {
+        return odIds.map(id => document.getElementById(id).value.trim());
+    }
+    function setODValues(arr) {
+        odIds.forEach((id, idx) => document.getElementById(id).value = arr[idx] || '');
+    }
+    function checkOD() {
+        const vals = getODValues();
+        let ok = 0, total = odCorrectas.length;
+        vals.forEach((v, i) => {
+            const input = document.getElementById(odIds[i]);
+            const norm = v.toLowerCase().replace(/\s+/g, ' ');
+            const correct = odCorrectas[i].toLowerCase();
+            input.classList.remove('correcto', 'incorrecto');
+            if (norm === correct) {
+                ok++;
+                input.classList.add('correcto');
+            } else {
+                input.classList.add('incorrecto');
+            }
+        });
+        document.getElementById('resultadoOD').innerHTML = `🟢 ${ok}/${total} correctas`;
+    }
+    function showODKeys() {
+        const container = document.getElementById('keysOD');
+        if (container.classList.contains('show')) {
+            container.classList.remove('show');
+            return;
+        }
+        let html = '<strong>📌 Respuestas correctas (OD):</strong><br>';
+        odCorrectas.forEach((item, i) => {
+            html += `<div class="key-item">${i+1}. <span class="correcta">${item}</span></div>`;
+        });
+        container.innerHTML = html;
+        container.classList.add('show');
+    }
+    function clearOD() {
+        setODValues(new Array(odIds.length).fill(''));
+        odIds.forEach(id => document.getElementById(id).classList.remove('correcto', 'incorrecto'));
+        document.getElementById('resultadoOD').innerHTML = '';
+        document.getElementById('keysOD').classList.remove('show');
+    }
+
+    // ============================================================
+    // EJERCICIO 2: OI
+    // ============================================================
+    const oiCorrectas = ["le", "le", "le", "te", "nos", "me"];
+    const oiIds = ['oi1','oi2','oi3','oi4','oi5','oi6'];
+
+    function getOIValues() {
+        return oiIds.map(id => document.getElementById(id).value.trim());
+    }
+    function setOIValues(arr) {
+        oiIds.forEach((id, idx) => document.getElementById(id).value = arr[idx] || '');
+    }
+    function checkOI() {
+        const vals = getOIValues();
+        let ok = 0, total = oiCorrectas.length;
+        vals.forEach((v, i) => {
+            const input = document.getElementById(oiIds[i]);
+            const norm = v.toLowerCase().replace(/\s+/g, ' ');
+            const correct = oiCorrectas[i].toLowerCase();
+            input.classList.remove('correcto', 'incorrecto');
+            if (norm === correct) {
+                ok++;
+                input.classList.add('correcto');
+            } else {
+                input.classList.add('incorrecto');
+            }
+        });
+        document.getElementById('resultadoOI').innerHTML = `🟢 ${ok}/${total} correctas`;
+    }
+    function showOIKeys() {
+        const container = document.getElementById('keysOI');
+        if (container.classList.contains('show')) {
+            container.classList.remove('show');
+            return;
+        }
+        let html = '<strong>📌 Respuestas correctas (OI):</strong><br>';
+        oiCorrectas.forEach((item, i) => {
+            html += `<div class="key-item">${i+1}. <span class="correcta">${item}</span></div>`;
+        });
+        container.innerHTML = html;
+        container.classList.add('show');
+    }
+    function clearOI() {
+        setOIValues(new Array(oiIds.length).fill(''));
+        oiIds.forEach(id => document.getElementById(id).classList.remove('correcto', 'incorrecto'));
+        document.getElementById('resultadoOI').innerHTML = '';
+        document.getElementById('keysOI').classList.remove('show');
+    }
+
+    // ============================================================
+    // EJERCICIO 3: COMBINACIÓN
+    // ============================================================
+    const combiCorrectas = ["se lo", "se la", "se las", "se las", "se lo", "nos lo", "me lo"];
+    const combiIds = ['c1','c2','c3','c4','c5','c6','c7'];
+
+    function getCombiValues() {
+        return combiIds.map(id => document.getElementById(id).value.trim());
+    }
+    function setCombiValues(arr) {
+        combiIds.forEach((id, idx) => document.getElementById(id).value = arr[idx] || '');
+    }
+    function checkCombi() {
+        const vals = getCombiValues();
+        let ok = 0, total = combiCorrectas.length;
+        vals.forEach((v, i) => {
+            const input = document.getElementById(combiIds[i]);
+            const norm = v.toLowerCase().replace(/\s+/g, ' ');
+            const correct = combiCorrectas[i].toLowerCase();
+            input.classList.remove('correcto', 'incorrecto');
+            if (norm === correct) {
+                ok++;
+                input.classList.add('correcto');
+            } else {
+                input.classList.add('incorrecto');
+            }
+        });
+        document.getElementById('resultadoCombi').innerHTML = `🟢 ${ok}/${total} correctas`;
+    }
+    function showCombiKeys() {
+        const container = document.getElementById('keysCombi');
+        if (container.classList.contains('show')) {
+            container.classList.remove('show');
+            return;
+        }
+        let html = '<strong>📌 Respuestas correctas (OD + OI):</strong><br>';
+        combiCorrectas.forEach((item, i) => {
+            html += `<div class="key-item">${i+1}. <span class="correcta">${item}</span></div>`;
+        });
+        container.innerHTML = html;
+        container.classList.add('show');
+    }
+    function clearCombi() {
+        setCombiValues(new Array(combiIds.length).fill(''));
+        combiIds.forEach(id => document.getElementById(id).classList.remove('correcto', 'incorrecto'));
+        document.getElementById('resultadoCombi').innerHTML = '';
+        document.getElementById('keysCombi').classList.remove('show');
+    }
+</script>
+</body>
+</html>
