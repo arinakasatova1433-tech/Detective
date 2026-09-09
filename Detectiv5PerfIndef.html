@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 El Inspector · Perfecto vs Indefinido</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background: #2a1f18;
+            font-family: 'Segoe UI', 'Courier New', monospace;
+            padding: 2rem 1rem;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            max-width: 1100px;
+            width: 100%;
+            background: #f0e8da;
+            background-image: repeating-linear-gradient(45deg, #e0d5c0 0px, #e0d5c0 2px, #f0e8da 2px, #f0e8da 4px);
+            padding: 2rem 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.8), 0 0 0 4px #5a4a3a inset, 0 0 0 6px #8a7a62 inset;
+            border: 8px solid #3d2e1f;
+            position: relative;
+        }
+        .container::before {
+            content: "🔍";
+            position: absolute;
+            top: -10px;
+            right: 30px;
+            font-size: 3.5rem;
+            opacity: 0.25;
+            transform: rotate(15deg);
+        }
+        h1 {
+            font-size: 2.6rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: #2b1c0e;
+            border-bottom: 4px double #6b4f34;
+            padding-bottom: 0.3rem;
+            font-family: 'Times New Roman', serif;
+            text-shadow: 3px 3px 0 rgba(90, 63, 43, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        h1 small {
+            font-size: 1rem;
+            letter-spacing: 2px;
+            background: #2b1c0e;
+            color: #e6dccc;
+            padding: 0.1rem 1.2rem;
+            border-radius: 30px;
+            font-weight: 400;
+            margin-left: auto;
+        }
+        .fecha {
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: #4d3c2b;
+            background: #dacfc0;
+            display: inline-block;
+            padding: 0.2rem 1.5rem;
+            border-radius: 20px;
+            margin: 0.5rem 0 1.5rem;
+            border: 1px solid #9b8a78;
+            font-weight: 600;
+        }
+
+        .section-title {
+            background: #dacfc0;
+            padding: 0.3rem 1.5rem;
+            border-radius: 40px;
+            display: inline-block;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #2b1c0e;
+            border: 1px solid #8a7a62;
+            margin: 1.5rem 0 0.8rem;
+        }
+        .section-title span { margin-right: 0.5rem; }
+
+        /* NOTAS DEL INSPECTOR */
+        .notas-box {
+            background: #fcf7f0;
+            padding: 1.5rem 2rem;
+            border-radius: 12px;
+            border-left: 8px solid #6b4f36;
+            box-shadow: inset 0 0 0 1px #d6cbbc, 0 6px 12px rgba(0,0,0,0.1);
+            font-size: 0.95rem;
+            line-height: 2;
+            color: #1e150e;
+            margin-bottom: 2rem;
+        }
+        .notas-box .nota {
+            padding: 0.2rem 0.5rem;
+            border-bottom: 1px dashed #d6cbbc;
+        }
+        .notas-box .nota:last-child {
+            border-bottom: none;
+        }
+        .notas-box .nota::before {
+            content: "📌 ";
+            color: #7f3f2a;
+        }
+
+        /* EJERCICIOS */
+        .ejercicio {
+            background: #fcf7f0;
+            padding: 1.2rem 1.8rem;
+            border-radius: 16px;
+            margin: 0.5rem 0 1.5rem;
+            border-left: 8px solid #7f6242;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .ejercicio .titulo-ej {
+            font-weight: 700;
+            color: #2b1c0e;
+            font-size: 1.1rem;
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .ejercicio .titulo-ej .badge {
+            background: #7f6242;
+            color: #fcf7f0;
+            padding: 0.1rem 0.8rem;
+            border-radius: 30px;
+            font-size: 0.75rem;
+        }
+
+        .item-ej {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: baseline;
+            gap: 4px 8px;
+            margin-bottom: 0.7rem;
+            background: #faf3e9;
+            padding: 0.4rem 0.8rem;
+            border-radius: 40px;
+        }
+        .item-ej .numero {
+            font-weight: 700;
+            color: #7f6242;
+            min-width: 32px;
+        }
+        .item-ej .texto-base {
+            color: #3d2e1d;
+            flex: 1;
+        }
+        .item-ej select {
+            padding: 0.3rem 0.8rem;
+            border-radius: 30px;
+            border: 2px solid #b8a080;
+            background: #fef9f0;
+            font-family: inherit;
+            font-size: 0.95rem;
+            cursor: pointer;
+            min-width: 120px;
+            font-weight: 600;
+        }
+        .item-ej select:focus {
+            outline: none;
+            border-color: #5a7a4a;
+            box-shadow: 0 0 8px rgba(90,122,74,0.3);
+        }
+        .item-ej select.correcto {
+            border-color: #1d6b2e;
+            background: rgba(29, 107, 46, 0.12);
+        }
+        .item-ej select.incorrecto {
+            border-color: #a13d2a;
+            background: rgba(161, 61, 42, 0.12);
+        }
+        .item-ej .result-icon {
+            font-size: 1.2rem;
+            margin-left: 0.3rem;
+        }
+        .item-ej input[type="text"] {
+            border: none;
+            border-bottom: 2px solid #7f6242;
+            background: transparent;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.95rem;
+            width: 130px;
+            padding: 0.1rem 0.3rem;
+            color: #1f150c;
+            font-weight: 600;
+            transition: 0.15s;
+        }
+        .item-ej input[type="text"]:focus {
+            outline: none;
+            border-bottom-color: #b14d27;
+            background: #f0e3d0;
+        }
+        .item-ej input[type="text"].correcto {
+            border-bottom-color: #1d6b2e;
+            background: rgba(29, 107, 46, 0.08);
+        }
+        .item-ej input[type="text"].incorrecto {
+            border-bottom-color: #a13d2a;
+            background: rgba(161, 61, 42, 0.08);
+        }
+
+        /* TABLA DE CLASIFICACIÓN */
+        .tabla-clasificacion {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+            margin: 0.5rem 0;
+        }
+        .tabla-clasificacion th {
+            background: #4d3a28;
+            color: #f5e6c8;
+            padding: 0.5rem 0.8rem;
+            text-align: center;
+        }
+        .tabla-clasificacion td {
+            padding: 0.4rem 0.6rem;
+            border-bottom: 1px solid #d6cbbc;
+            text-align: center;
+            vertical-align: middle;
+        }
+        .tabla-clasificacion tr:nth-child(even) td {
+            background: #faf3e9;
+        }
+        .tabla-clasificacion .expresion {
+            text-align: left;
+            font-weight: 600;
+            color: #2b1c0e;
+        }
+        .tabla-clasificacion select {
+            padding: 0.2rem 0.5rem;
+            border-radius: 20px;
+            border: 2px solid #b8a080;
+            background: #fef9f0;
+            font-family: inherit;
+            font-size: 0.9rem;
+            cursor: pointer;
+            width: 100%;
+            max-width: 120px;
+        }
+        .tabla-clasificacion select:focus {
+            outline: none;
+            border-color: #5a7a4a;
+        }
+        .tabla-clasificacion select.correcto {
+            border-color: #1d6b2e;
+            background: rgba(29, 107, 46, 0.12);
+        }
+        .tabla-clasificacion select.incorrecto {
+            border-color: #a13d2a;
+            background: rgba(161, 61, 42, 0.12);
+        }
+
+        /* TABLA DE CONJUGACIÓN */
+        .tabla-conjugacion {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+            margin: 0.5rem 0;
+        }
+        .tabla-conjugacion th {
+            background: #4d3a28;
+            color: #f5e6c8;
+            padding: 0.5rem 0.8rem;
+            text-align: center;
+        }
+        .tabla-conjugacion td {
+            padding: 0.3rem 0.6rem;
+            border-bottom: 1px solid #d6cbbc;
+            text-align: center;
+            vertical-align: middle;
+        }
+        .tabla-conjugacion tr:nth-child(even) td {
+            background: #faf3e9;
+        }
+        .tabla-conjugacion .verbo-label {
+            text-align: left;
+            font-weight: 700;
+            color: #2b1c0e;
+        }
+        .tabla-conjugacion input[type="text"] {
+            border: none;
+            border-bottom: 2px solid #7f6242;
+            background: transparent;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+            width: 130px;
+            padding: 0.1rem 0.3rem;
+            color: #1f150c;
+            font-weight: 600;
+            transition: 0.15s;
+            text-align: center;
+        }
+        .tabla-conjugacion input[type="text"]:focus {
+            outline: none;
+            border-bottom-color: #b14d27;
+            background: #f0e3d0;
+        }
+        .tabla-conjugacion input[type="text"].correcto {
+            border-bottom-color: #1d6b2e;
+            background: rgba(29, 107, 46, 0.08);
+        }
+        .tabla-conjugacion input[type="text"].incorrecto {
+            border-bottom-color: #a13d2a;
+            background: rgba(161, 61, 42, 0.12);
+        }
+
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 0.8rem 0 0.3rem;
+        }
+        .btn {
+            background: #4d3a28;
+            border: none;
+            color: #f2ecdf;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: 700;
+            font-size: 0.85rem;
+            padding: 0.5rem 1.8rem;
+            border-radius: 60px;
+            letter-spacing: 1.5px;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #1f150c;
+            transition: 0.1s ease;
+            border: 1px solid #7f6242;
+            text-transform: uppercase;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 #1f150c;
+            background: #5f4733;
+        }
+        .btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 0px 0 #1f150c;
+        }
+        .btn-verde {
+            background: #2d5a3b;
+            box-shadow: 0 4px 0 #14331f;
+            border-color: #4b7a58;
+        }
+        .btn-verde:hover { background: #3a704b; }
+        .btn-marron {
+            background: #7f6242;
+            box-shadow: 0 4px 0 #4d351f;
+        }
+        .btn-marron:hover { background: #9c7a56; }
+        .btn-gris {
+            background: #5a4a3a;
+            box-shadow: 0 4px 0 #2f2419;
+        }
+        .btn-gris:hover { background: #6f5c49; }
+
+        .resultado {
+            margin-top: 0.8rem;
+            font-weight: 700;
+            background: #e5d7c4;
+            padding: 0.3rem 1.5rem;
+            border-radius: 40px;
+            display: inline-block;
+            font-size: 0.95rem;
+        }
+
+        .keys-container {
+            background: #fcf3e0;
+            padding: 1rem 1.5rem;
+            border-radius: 16px;
+            border-left: 6px solid #b8935a;
+            margin-top: 1rem;
+            display: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .keys-container.show { display: block; }
+        .keys-container .key-item {
+            padding: 0.2rem 0;
+            border-bottom: 1px dashed #b8a080;
+            font-size: 0.95rem;
+        }
+        .keys-container .key-item:last-child { border-bottom: none; }
+        .keys-container .key-item .correcta {
+            color: #1d6b2e;
+            font-weight: 700;
+        }
+
+        .footer {
+            margin-top: 2rem;
+            border-top: 2px dotted #7f6242;
+            padding-top: 1rem;
+            text-align: right;
+            color: #4d3a28;
+            letter-spacing: 1px;
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: 700px) {
+            .container { padding: 1.2rem; }
+            .item-ej { flex-direction: column; align-items: stretch; gap: 4px; }
+            .item-ej select { min-width: 100%; }
+            .tabla-clasificacion { font-size: 0.85rem; }
+            .tabla-clasificacion select { max-width: 80px; font-size: 0.8rem; }
+            .tabla-conjugacion { font-size: 0.85rem; }
+            .tabla-conjugacion input[type="text"] { width: 90px; font-size: 0.8rem; }
+            h1 { font-size: 1.8rem; }
+            .notas-box { padding: 1rem; font-size: 0.9rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>
+        <span>🔍 El Inspector</span>
+        <small>Notas del caso · Perfecto vs Indefinido</small>
+    </h1>
+    <div class="fecha">🗓️ Repaso de las notas · caso Penélope Luz</div>
+
+    <!-- ====== NOTAS DEL INSPECTOR ====== -->
+    <div class="section-title"><span>📋</span> Notas del Inspector</div>
+
+    <div class="notas-box">
+        <div class="nota">La víctima, Penélope Luz, volvió ayer sábado de un viaje por Latinoamérica. ¿Estuvo sola?</div>
+        <div class="nota">Enrique Peralta estuvo de viaje en México. ¿Con Penélope Luz?</div>
+        <div class="nota">La anciana ha dicho que oyó un grito, un disparo y un golpe de algo que cayó al suelo, probablemente la activó.</div>
+        <div class="nota">Ricardo Martínez (esposo) ha dicho que salió de casa a eso de las cinco. La señora Jiménez ha afirmado que lo vio entrar. ¿Quién ha dicho la verdad?</div>
+        <div class="nota">Penélope Luz estuvo, probablemente sola hasta el asesinato. ¿O no?</div>
+        <div class="nota">El crimen fue a las 2. Eso ha dicho esta mañana la vecina.</div>
+        <div class="nota">Ricardo Martínez estuvo con Lola Sánchez. ¿Son amantes?</div>
+        <div class="nota">Su marido, Enrique Peralta, y Penélope Luz han sido amantes también.</div>
+        <div class="nota">La vecina dice que oyó el disparo a las 2 de la noche. He notado que es un poco sorda. ¿El disparo ha sido realmente a las 2?</div>
+        <div class="nota">Martínez ha dicho que volvió a casa a eso de las 3.30. No hay testigos.</div>
+        <div class="nota">La doncella ha vuelto a casa esta mañana. ¿Dónde ha pasado la noche? Preguntar.</div>
+        <div class="nota">Esta tarde alguien se ha comido mi bocadillo de jamón. ¿Ha sido el sargento Cambra? Investigar.</div>
+    </div>
+
+    <!-- ====== EJERCICIO 1: DECIDIR SI ESTÁ CONVENCIDO ====== -->
+    <div class="section-title"><span>✍️</span> 1. Decide si el Inspector está convencido</div>
+
+    <div class="ejercicio">
+        <div class="titulo-ej">
+            <span>📌 Decide si en las siguientes afirmaciones el Inspector está (a) o no está (b) convencido.</span>
+            <span class="badge">a = sí · b = no</span>
+        </div>
+        <p style="font-size:0.9rem; color:#4d3c2b; margin-bottom:0.8rem;">
+            Basándote en las notas del Inspector, elige la opción correcta.
+        </p>
+
+        <div id="ejercicioItems">
+            <div class="item-ej">
+                <span class="numero">1.</span>
+                <span class="texto-base">A las 2 hubo un disparo.</span>
+                <select id="q1">
+                    <option value="">— elige —</option>
+                    <option value="a">a) Sí, está convencido</option>
+                    <option value="b">b) No, no está convencido</option>
+                </select>
+                <span class="result-icon" id="icon1"></span>
+            </div>
+
+            <div class="item-ej">
+                <span class="numero">2.</span>
+                <span class="texto-base">Ricardo Martínez salió de casa a las 5 de la tarde.</span>
+                <select id="q2">
+                    <option value="">— elige —</option>
+                    <option value="a">a) Sí, está convencido</option>
+                    <option value="b">b) No, no está convencido</option>
+                </select>
+                <span class="result-icon" id="icon2"></span>
+            </div>
+
+            <div class="item-ej">
+                <span class="numero">3.</span>
+                <span class="texto-base">La actriz estuvo de viaje por Latinoamérica hasta el sábado.</span>
+                <select id="q3">
+                    <option value="">— elige —</option>
+                    <option value="a">a) Sí, está convencido</option>
+                    <option value="b">b) No, no está convencido</option>
+                </select>
+                <span class="result-icon" id="icon3"></span>
+            </div>
+
+            <div class="item-ej">
+                <span class="numero">4.</span>
+                <span class="texto-base">A las 5 la señora Jiménez vio entrar al Sr. Martínez en casa.</span>
+                <select id="q4">
+                    <option value="">— elige —</option>
+                    <option value="a">a) Sí, está convencido</option>
+                    <option value="b">b) No, no está convencido</option>
+                </select>
+                <span class="result-icon" id="icon4"></span>
+            </div>
+
+            <div class="item-ej">
+                <span class="numero">5.</span>
+                <span class="texto-base">Ricardo Martínez tuvo una cita con Lola Sánchez.</span>
+                <select id="q5">
+                    <option value="">— elige —</option>
+                    <option value="a">a) Sí, está convencido</option>
+                    <option value="b">b) No, no está convencido</option>
+                </select>
+                <span class="result-icon" id="icon5"></span>
+            </div>
+
+            <div class="item-ej">
+                <span class="numero">6.</span>
+                <span class="texto-base">La doncella ha vuelto a casa esta mañana.</span>
+                <select id="q6">
+                    <option value="">— elige —</option>
+                    <option value="a">a) Sí, está convencido</option>
+                    <option value="b">b) No, no está convencido</option>
+                </select>
+                <span class="result-icon" id="icon6"></span>
+            </div>
+
+            <div class="item-ej">
+                <span class="numero">7.</span>
+                <span class="texto-base">Penélope Luz estuvo sola hasta el asesinato.</span>
+                <select id="q7">
+                    <option value="">— elige —</option>
+                    <option value="a">a) Sí, está convencido</option>
+                    <option value="b">b) No, no está convencido</option>
+                </select>
+                <span class="result-icon" id="icon7"></span>
+            </div>
+
+            <div class="item-ej">
+                <span class="numero">8.</span>
+                <span class="texto-base">Enrique Peralta estuvo de viaje en México.</span>
+                <select id="q8">
+                    <option value="">— elige —</option>
+                    <option value="a">a) Sí, está convencido</option>
+                    <option value="b">b) No, no está convencido</option>
+                </select>
+                <span class="result-icon" id="icon8"></span>
+            </div>
+
+            <div class="item-ej">
+                <span class="numero">9.</span>
+                <span class="texto-base">Enrique Peralta y Penélope Luz viajaron juntos a México.</span>
+                <select id="q9">
+                    <option value="">— elige —</option>
+                    <option value="a">a) Sí, está convencido</option>
+                    <option value="b">b) No, no está convencido</option>
+                </select>
+                <span class="result-icon" id="icon9"></span>
+            </div>
+
+            <div class="item-ej">
+                <span class="numero">10.</span>
+                <span class="texto-base">Fue el sargento Cambra el que se comió el bocadillo.</span>
+                <select id="q10">
+                    <option value="">— elige —</option>
+                    <option value="a">a) Sí, está convencido</option>
+                    <option value="b">b) No, no está convencido</option>
+                </select>
+                <span class="result-icon" id="icon10"></span>
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn btn-verde" onclick="checkConvencido()">✅ Autocorrección</button>
+            <button class="btn btn-marron" onclick="showConvencidoKeys()">🔍 Mostrar respuestas</button>
+            <button class="btn btn-gris" onclick="clearConvencido()">🧹 Limpiar</button>
+        </div>
+        <div id="resultadoConvencido" class="resultado"></div>
+        <div id="keysConvencido" class="keys-container"></div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- EJERCICIO 2: CLASIFICACIÓN DE EXPRESIONES TEMPORALES -->
+    <!-- ============================================================ -->
+    <div class="section-title"><span>📋</span> 2. Clasifica las expresiones temporales</div>
+
+    <div class="ejercicio">
+        <div class="titulo-ej">
+            <span>Elige si cada expresión va con Perfecto o Indefinido</span>
+            <span class="badge">Perfecto · Indefinido</span>
+        </div>
+
+        <table class="tabla-clasificacion" id="tablaClasificacion">
+            <thead>
+                <tr>
+                    <th style="text-align:left; width:40%;">Expresión</th>
+                    <th style="width:30%;">Perfecto</th>
+                    <th style="width:30%;">Indefinido</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="expresion">esta mañana</td>
+                    <td><input type="radio" name="c1" value="perfecto" id="c1_p"> <label for="c1_p">✔</label></td>
+                    <td><input type="radio" name="c1" value="indefinido" id="c1_i"> <label for="c1_i">✔</label></td>
+                </tr>
+                <tr>
+                    <td class="expresion">ayer</td>
+                    <td><input type="radio" name="c2" value="perfecto" id="c2_p"> <label for="c2_p">✔</label></td>
+                    <td><input type="radio" name="c2" value="indefinido" id="c2_i"> <label for="c2_i">✔</label></td>
+                </tr>
+                <tr>
+                    <td class="expresion">hace un rato</td>
+                    <td><input type="radio" name="c3" value="perfecto" id="c3_p"> <label for="c3_p">✔</label></td>
+                    <td><input type="radio" name="c3" value="indefinido" id="c3_i"> <label for="c3_i">✔</label></td>
+                </tr>
+                <tr>
+                    <td class="expresion">el año pasado</td>
+                    <td><input type="radio" name="c4" value="perfecto" id="c4_p"> <label for="c4_p">✔</label></td>
+                    <td><input type="radio" name="c4" value="indefinido" id="c4_i"> <label for="c4_i">✔</label></td>
+                </tr>
+                <tr>
+                    <td class="expresion">este fin de semana</td>
+                    <td><input type="radio" name="c5" value="perfecto" id="c5_p"> <label for="c5_p">✔</label></td>
+                    <td><input type="radio" name="c5" value="indefinido" id="c5_i"> <label for="c5_i">✔</label></td>
+                </tr>
+                <tr>
+                    <td class="expresion">el fin de semana pasado</td>
+                    <td><input type="radio" name="c6" value="perfecto" id="c6_p"> <label for="c6_p">✔</label></td>
+                    <td><input type="radio" name="c6" value="indefinido" id="c6_i"> <label for="c6_i">✔</label></td>
+                </tr>
+                <tr>
+                    <td class="expresion">en 1999</td>
+                    <td><input type="radio" name="c7" value="perfecto" id="c7_p"> <label for="c7_p">✔</label></td>
+                    <td><input type="radio" name="c7" value="indefinido" id="c7_i"> <label for="c7_i">✔</label></td>
+                </tr>
+                <tr>
+                    <td class="expresion">a los 14 años</td>
+                    <td><input type="radio" name="c8" value="perfecto" id="c8_p"> <label for="c8_p">✔</label></td>
+                    <td><input type="radio" name="c8" value="indefinido" id="c8_i"> <label for="c8_i">✔</label></td>
+                </tr>
+                <tr>
+                    <td class="expresion">hace cinco minutos</td>
+                    <td><input type="radio" name="c9" value="perfecto" id="c9_p"> <label for="c9_p">✔</label></td>
+                    <td><input type="radio" name="c9" value="indefinido" id="c9_i"> <label for="c9_i">✔</label></td>
+                </tr>
+                <tr>
+                    <td class="expresion">hasta ahora</td>
+                    <td><input type="radio" name="c10" value="perfecto" id="c10_p"> <label for="c10_p">✔</label></td>
+                    <td><input type="radio" name="c10" value="indefinido" id="c10_i"> <label for="c10_i">✔</label></td>
+                </tr>
+                <tr>
+                    <td class="expresion">hace 3 años</td>
+                    <td><input type="radio" name="c11" value="perfecto" id="c11_p"> <label for="c11_p">✔</label></td>
+                    <td><input type="radio" name="c11" value="indefinido" id="c11_i"> <label for="c11_i">✔</label></td>
+                </tr>
+                <tr>
+                    <td class="expresion">el mes pasado</td>
+                    <td><input type="radio" name="c12" value="perfecto" id="c12_p"> <label for="c12_p">✔</label></td>
+                    <td><input type="radio" name="c12" value="indefinido" id="c12_i"> <label for="c12_i">✔</label></td>
+                </tr>
+                <tr>
+                    <td class="expresion">en julio</td>
+                    <td><input type="radio" name="c13" value="perfecto" id="c13_p"> <label for="c13_p">✔</label></td>
+                    <td><input type="radio" name="c13" value="indefinido" id="c13_i"> <label for="c13_i">✔</label></td>
+                </tr>
+                <tr>
+                    <td class="expresion">últimamente</td>
+                    <td><input type="radio" name="c14" value="perfecto" id="c14_p"> <label for="c14_p">✔</label></td>
+                    <td><input type="radio" name="c14" value="indefinido" id="c14_i"> <label for="c14_i">✔</label></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="btn-group">
+            <button class="btn btn-verde" onclick="checkClasificacion()">✅ Autocorrección</button>
+            <button class="btn btn-marron" onclick="showClasificacionKeys()">🔍 Mostrar respuestas</button>
+            <button class="btn btn-gris" onclick="clearClasificacion()">🧹 Limpiar</button>
+        </div>
+        <div id="resultadoClasificacion" class="resultado"></div>
+        <div id="keysClasificacion" class="keys-container"></div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- EJERCICIO 3: ELEGIR LA FORMA CORRECTA -->
+    <!-- ============================================================ -->
+    <div class="section-title"><span>✍️</span> 3. Elige la forma correcta</div>
+
+    <div class="ejercicio">
+        <div class="titulo-ej">
+            <span>Elige la opción correcta (Perfecto o Indefinido)</span>
+            <span class="badge">Perfecto · Indefinido</span>
+        </div>
+
+        <div id="eleccionItems">
+            <div class="item-ej">
+                <span class="numero">1.</span>
+                <span class="texto-base">Todavía no desayuné / he desayunado.</span>
+                <select id="e1">
+                    <option value="">— elige —</option>
+                    <option value="perfecto">he desayunado (Perfecto)</option>
+                    <option value="indefinido">desayuné (Indefinido)</option>
+                </select>
+                <span class="result-icon" id="iconE1"></span>
+            </div>
+
+            <div class="item-ej">
+                <span class="numero">2.</span>
+                <span class="texto-base">El mes pasado cobré / he cobrado poco.</span>
+                <select id="e2">
+                    <option value="">— elige —</option>
+                    <option value="perfecto">he cobrado (Perfecto)</option>
+                    <option value="indefinido">cobré (Indefinido)</option>
+                </select>
+                <span class="result-icon" id="iconE2"></span>
+            </div>
+
+            <div class="item-ej">
+                <span class="numero">3.</span>
+                <span class="texto-base">¿Qué hiciste / has hecho hoy?</span>
+                <select id="e3">
+                    <option value="">— elige —</option>
+                    <option value="perfecto">has hecho (Perfecto)</option>
+                    <option value="indefinido">hiciste (Indefinido)</option>
+                </select>
+                <span class="result-icon" id="iconE3"></span>
+            </div>
+
+            <div class="item-ej">
+                <span class="numero">4.</span>
+                <span class="texto-base">Estoy cansado, trabajé / he trabajado todo el día.</span>
+                <select id="e4">
+                    <option value="">— elige —</option>
+                    <option value="perfecto">he trabajado (Perfecto)</option>
+                    <option value="indefinido">trabajé (Indefinido)</option>
+                </select>
+                <span class="result-icon" id="iconE4"></span>
+            </div>
+
+            <div class="item-ej">
+                <span class="numero">5.</span>
+                <span class="texto-base">El jefe no llegó / ha llegado aún.</span>
+                <select id="e5">
+                    <option value="">— elige —</option>
+                    <option value="perfecto">ha llegado (Perfecto)</option>
+                    <option value="indefinido">llegó (Indefinido)</option>
+                </select>
+                <span class="result-icon" id="iconE5"></span>
+            </div>
+
+            <div class="item-ej">
+                <span class="numero">6.</span>
+                <span class="texto-base">Llegué / he llegado a España el martes pasado.</span>
+                <select id="e6">
+                    <option value="">— elige —</option>
+                    <option value="perfecto">he llegado (Perfecto)</option>
+                    <option value="indefinido">llegué (Indefinido)</option>
+                </select>
+                <span class="result-icon" id="iconE6"></span>
+            </div>
+
+            <div class="item-ej">
+                <span class="numero">7.</span>
+                <span class="texto-base">¿Cenasteis / habéis cenado ya?</span>
+                <select id="e7">
+                    <option value="">— elige —</option>
+                    <option value="perfecto">habéis cenado (Perfecto)</option>
+                    <option value="indefinido">cenasteis (Indefinido)</option>
+                </select>
+                <span class="result-icon" id="iconE7"></span>
+            </div>
+
+            <div class="item-ej">
+                <span class="numero">8.</span>
+                <span class="texto-base">Encontré / he encontrado la llave, podemos irnos.</span>
+                <select id="e8">
+                    <option value="">— elige —</option>
+                    <option value="perfecto">he encontrado (Perfecto)</option>
+                    <option value="indefinido">encontré (Indefinido)</option>
+                </select>
+                <span class="result-icon" id="iconE8"></span>
+            </div>
+
+            <div class="item-ej">
+                <span class="numero">9.</span>
+                <span class="texto-base">¿A cuántos amigos invitaste / has invitado hasta ahora?</span>
+                <select id="e9">
+                    <option value="">— elige —</option>
+                    <option value="perfecto">has invitado (Perfecto)</option>
+                    <option value="indefinido">invitaste (Indefinido)</option>
+                </select>
+                <span class="result-icon" id="iconE9"></span>
+            </div>
+
+            <div class="item-ej">
+                <span class="numero">10.</span>
+                <span class="texto-base">El sábado pasado cené / he cenado con los Peralta.</span>
+                <select id="e10">
+                    <option value="">— elige —</option>
+                    <option value="perfecto">he cenado (Perfecto)</option>
+                    <option value="indefinido">cené (Indefinido)</option>
+                </select>
+                <span class="result-icon" id="iconE10"></span>
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn btn-verde" onclick="checkEleccion()">✅ Autocorrección</button>
+            <button class="btn btn-marron" onclick="showEleccionKeys()">🔍 Mostrar respuestas</button>
+            <button class="btn btn-gris" onclick="clearEleccion()">🧹 Limpiar</button>
+        </div>
+        <div id="resultadoEleccion" class="resultado"></div>
+        <div id="keysEleccion" class="keys-container"></div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- EJERCICIO 4: IDENTIFICAR EL TIEMPO VERBAL (SIN NEGRITA) -->
+    <!-- ============================================================ -->
+    <div class="section-title"><span>🔍</span> 4. Identifica el tiempo verbal</div>
+
+    <div class="ejercicio">
+        <div class="titulo-ej">
+            <span>Escribe si la frase está en <strong>Perfecto</strong> o <strong>Indefinido</strong></span>
+            <span class="badge">Perfecto · Indefinido</span>
+        </div>
+
+        <div id="identificarItems">
+            <div class="item-ej">
+                <span class="numero">1.</span>
+                <span class="texto-base">He comido mucho hoy.</span>
+                → <input type="text" id="id1" placeholder="Perfecto / Indefinido">
+                <span class="result-icon" id="iconId1"></span>
+            </div>
+
+            <div class="item-ej">
+                <span class="numero">2.</span>
+                <span class="texto-base">Viajé a México el año pasado.</span>
+                → <input type="text" id="id2" placeholder="Perfecto / Indefinido">
+                <span class="result-icon" id="iconId2"></span>
+            </div>
+
+            <div class="item-ej">
+                <span class="numero">3.</span>
+                <span class="texto-base">Han llegado los invitados.</span>
+                → <input type="text" id="id3" placeholder="Perfecto / Indefinido">
+                <span class="result-icon" id="iconId3"></span>
+            </div>
+
+            <div class="item-ej">
+                <span class="numero">4.</span>
+                <span class="texto-base">Conocí a mi esposa en 1999.</span>
+                → <input type="text" id="id4" placeholder="Perfecto / Indefinido">
+                <span class="result-icon" id="iconId4"></span>
+            </div>
+
+            <div class="item-ej">
+                <span class="numero">5.</span>
+                <span class="texto-base">Hemos hablado esta mañana.</span>
+                → <input type="text" id="id5" placeholder="Perfecto / Indefinido">
+                <span class="result-icon" id="iconId5"></span>
+            </div>
+
+            <div class="item-ej">
+                <span class="numero">6.</span>
+                <span class="texto-base">Escribí una carta ayer.</span>
+                → <input type="text" id="id6" placeholder="Perfecto / Indefinido">
+                <span class="result-icon" id="iconId6"></span>
+            </div>
+
+            <div class="item-ej">
+                <span class="numero">7.</span>
+                <span class="texto-base">He vivido aquí toda mi vida.</span>
+                → <input type="text" id="id7" placeholder="Perfecto / Indefinido">
+                <span class="result-icon" id="iconId7"></span>
+            </div>
+
+            <div class="item-ej">
+                <span class="numero">8.</span>
+                <span class="texto-base">Nací en Madrid.</span>
+                → <input type="text" id="id8" placeholder="Perfecto / Indefinido">
+                <span class="result-icon" id="iconId8"></span>
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn btn-verde" onclick="checkIdentificar()">✅ Autocorrección</button>
+            <button class="btn btn-marron" onclick="showIdentificarKeys()">🔍 Mostrar respuestas</button>
+            <button class="btn btn-gris" onclick="clearIdentificar()">🧹 Limpiar</button>
+        </div>
+        <div id="resultadoIdentificar" class="resultado"></div>
+        <div id="keysIdentificar" class="keys-container"></div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- EJERCICIO 5: TABLA DE CONJUGACIÓN (CAMPOS VACÍOS) -->
+    <!-- ============================================================ -->
+    <div class="section-title"><span>📝</span> 5. Conjuga los verbos en ambos tiempos</div>
+
+    <div class="ejercicio">
+        <div class="titulo-ej">
+            <span>Completa la tabla con la forma correcta en <strong>Perfecto</strong> e <strong>Indefinido</strong></span>
+            <span class="badge">Perfecto · Indefinido</span>
+        </div>
+
+        <table class="tabla-conjugacion" id="tablaConjugacion">
+            <thead>
+                <tr>
+                    <th style="text-align:left; width:15%;">Verbo</th>
+                    <th style="width:20%;">Persona</th>
+                    <th style="width:32%;">Perfecto</th>
+                    <th style="width:33%;">Indefinido</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td class="verbo-label">pedir</td><td>yo</td><td><input type="text" id="conj1_p" value=""></td><td><input type="text" id="conj1_i" value=""></td></tr>
+                <tr><td class="verbo-label">conducir</td><td>tú</td><td><input type="text" id="conj2_p" value=""></td><td><input type="text" id="conj2_i" value=""></td></tr>
+                <tr><td class="verbo-label">querer</td><td>él</td><td><input type="text" id="conj3_p" value=""></td><td><input type="text" id="conj3_i" value=""></td></tr>
+                <tr><td class="verbo-label">charlar</td><td>nosotros</td><td><input type="text" id="conj4_p" value=""></td><td><input type="text" id="conj4_i" value=""></td></tr>
+                <tr><td class="verbo-label">resolver</td><td>vosotros</td><td><input type="text" id="conj5_p" value=""></td><td><input type="text" id="conj5_i" value=""></td></tr>
+                <tr><td class="verbo-label">dormir</td><td>ellos</td><td><input type="text" id="conj6_p" value=""></td><td><input type="text" id="conj6_i" value=""></td></tr>
+                <tr><td class="verbo-label">decir</td><td>yo</td><td><input type="text" id="conj7_p" value=""></td><td><input type="text" id="conj7_i" value=""></td></tr>
+                <tr><td class="verbo-label">romper</td><td>tú</td><td><input type="text" id="conj8_p" value=""></td><td><input type="text" id="conj8_i" value=""></td></tr>
+                <tr><td class="verbo-label">interrogar</td><td>él</td><td><input type="text" id="conj9_p" value=""></td><td><input type="text" id="conj9_i" value=""></td></tr>
+                <tr><td class="verbo-label">responder</td><td>nosotros</td><td><input type="text" id="conj10_p" value=""></td><td><input type="text" id="conj10_i" value=""></td></tr>
+            </tbody>
+        </table>
+
+        <div class="btn-group">
+            <button class="btn btn-verde" onclick="checkConjugacion()">✅ Autocorrección</button>
+            <button class="btn btn-marron" onclick="showConjugacionKeys()">🔍 Mostrar respuestas</button>
+            <button class="btn btn-gris" onclick="clearConjugacion()">🧹 Limpiar</button>
+        </div>
+        <div id="resultadoConjugacion" class="resultado"></div>
+        <div id="keysConjugacion" class="keys-container"></div>
+    </div>
+
+    <div class="footer">
+        🔍 Caso Penélope Luz · 📚 Perfecto vs Indefinido
+    </div>
+</div>
+
+<script>
+    // ============================================================
+    // EJERCICIO 1: CONVENCIDO
+    // ============================================================
+    const respuestasCorrectas = [
+        "b", "a", "a", "b", "a", "a", "b", "a", "b", "b"
+    ];
+    const ids = ['q1','q2','q3','q4','q5','q6','q7','q8','q9','q10'];
+
+    function getConvencidoValues() {
+        return ids.map(id => document.getElementById(id).value);
+    }
+
+    function checkConvencido() {
+        const vals = getConvencidoValues();
+        let ok = 0, total = respuestasCorrectas.length;
+
+        vals.forEach((v, i) => {
+            const select = document.getElementById(ids[i]);
+            const icon = document.getElementById('icon' + (i + 1));
+            select.classList.remove('correcto', 'incorrecto');
+            if (v === respuestasCorrectas[i]) {
+                ok++;
+                select.classList.add('correcto');
+                icon.textContent = '✅';
+            } else if (v === '') {
+                icon.textContent = '⬜';
+            } else {
+                select.classList.add('incorrecto');
+                icon.textContent = '❌';
+            }
+        });
+
+        document.getElementById('resultadoConvencido').innerHTML = `🟢 ${ok}/${total} correctas`;
+    }
+
+    function showConvencidoKeys() {
+        const container = document.getElementById('keysConvencido');
+        if (container.classList.contains('show')) {
+            container.classList.remove('show');
+            return;
+        }
+        const explicaciones = [
+            'No — la vecina es sorda, el disparo pudo ser a otra hora.',
+            'Sí — Martínez lo dijo en el interrogatorio.',
+            'Sí — la víctima volvió ayer sábado de Latinoamérica.',
+            'No — hay contradicción entre Martínez y la vecina.',
+            'Sí — Martínez estuvo con Lola Sánchez.',
+            'Sí — la doncella ha vuelto esta mañana.',
+            'No — es una suposición ("probablemente").',
+            'Sí — Peralta estuvo de viaje en México.',
+            'No — no sabe si viajaron juntos.',
+            'No — es una hipótesis, debe investigar.'
+        ];
+        let html = '<strong>📌 Respuestas correctas:</strong><br>';
+        respuestasCorrectas.forEach((item, i) => {
+            const texto = item === 'a' ? 'a) Sí, está convencido' : 'b) No, no está convencido';
+            html += `<div class="key-item">${i+1}. <span class="correcta">${texto}</span> — ${explicaciones[i]}</div>`;
+        });
+        container.innerHTML = html;
+        container.classList.add('show');
+    }
+
+    function clearConvencido() {
+        ids.forEach(id => {
+            const select = document.getElementById(id);
+            select.value = '';
+            select.classList.remove('correcto', 'incorrecto');
+        });
+        for (let i = 1; i <= 10; i++) {
+            document.getElementById('icon' + i).textContent = '';
+        }
+        document.getElementById('resultadoConvencido').innerHTML = '';
+        document.getElementById('keysConvencido').classList.remove('show');
+    }
+
+    // ============================================================
+    // EJERCICIO 2: CLASIFICACIÓN
+    // ============================================================
+    const clasificacionCorrecta = [
+        "perfecto", "indefinido", "perfecto", "indefinido",
+        "perfecto", "indefinido", "indefinido", "indefinido",
+        "perfecto", "perfecto", "indefinido", "indefinido",
+        "indefinido", "perfecto"
+    ];
+
+    function getClasificacionValues() {
+        const values = [];
+        for (let i = 1; i <= 14; i++) {
+            const radios = document.getElementsByName('c' + i);
+            let selected = '';
+            for (const radio of radios) {
+                if (radio.checked) {
+                    selected = radio.value;
+                    break;
+                }
+            }
+            values.push(selected);
+        }
+        return values;
+    }
+
+    function checkClasificacion() {
+        const vals = getClasificacionValues();
+        let ok = 0, total = clasificacionCorrecta.length;
+
+        vals.forEach((v, i) => {
+            const radios = document.getElementsByName('c' + (i + 1));
+            if (v === clasificacionCorrecta[i]) {
+                ok++;
+                radios.forEach(r => {
+                    r.closest('td').style.backgroundColor = 'rgba(29, 107, 46, 0.08)';
+                });
+            } else if (v === '') {
+                radios.forEach(r => {
+                    r.closest('td').style.backgroundColor = '';
+                });
+            } else {
+                radios.forEach(r => {
+                    r.closest('td').style.backgroundColor = 'rgba(161, 61, 42, 0.12)';
+                });
+            }
+        });
+
+        document.getElementById('resultadoClasificacion').innerHTML = `🟢 ${ok}/${total} correctas`;
+    }
+
+    function showClasificacionKeys() {
+        const container = document.getElementById('keysClasificacion');
+        if (container.classList.contains('show')) {
+            container.classList.remove('show');
+            return;
+        }
+        const expresiones = [
+            "esta mañana → Perfecto", "ayer → Indefinido",
+            "hace un rato → Perfecto", "el año pasado → Indefinido",
+            "este fin de semana → Perfecto", "el fin de semana pasado → Indefinido",
+            "en 1999 → Indefinido", "a los 14 años → Indefinido",
+            "hace cinco minutos → Perfecto", "hasta ahora → Perfecto",
+            "hace 3 años → Indefinido", "el mes pasado → Indefinido",
+            "en julio → Indefinido", "últimamente → Perfecto"
+        ];
+        let html = '<strong>📌 Respuestas correctas:</strong><br>';
+        expresiones.forEach((item, i) => {
+            html += `<div class="key-item">${i+1}. <span class="correcta">${item}</span></div>`;
+        });
+        container.innerHTML = html;
+        container.classList.add('show');
+    }
+
+    function clearClasificacion() {
+        for (let i = 1; i <= 14; i++) {
+            const radios = document.getElementsByName('c' + i);
+            radios.forEach(r => {
+                r.checked = false;
+                r.closest('td').style.backgroundColor = '';
+            });
+        }
+        document.getElementById('resultadoClasificacion').innerHTML = '';
+        document.getElementById('keysClasificacion').classList.remove('show');
+    }
+
+    // ============================================================
+    // EJERCICIO 3: ELECCIÓN
+    // ============================================================
+    const eleccionCorrecta = [
+        "perfecto", "indefinido", "perfecto", "perfecto",
+        "perfecto", "indefinido", "perfecto", "indefinido",
+        "perfecto", "indefinido"
+    ];
+    const eleccionIds = ['e1','e2','e3','e4','e5','e6','e7','e8','e9','e10'];
+
+    function getEleccionValues() {
+        return eleccionIds.map(id => document.getElementById(id).value);
+    }
+
+    function checkEleccion() {
+        const vals = getEleccionValues();
+        let ok = 0, total = eleccionCorrecta.length;
+
+        vals.forEach((v, i) => {
+            const select = document.getElementById(eleccionIds[i]);
+            const icon = document.getElementById('iconE' + (i + 1));
+            select.classList.remove('correcto', 'incorrecto');
+            if (v === eleccionCorrecta[i]) {
+                ok++;
+                select.classList.add('correcto');
+                icon.textContent = '✅';
+            } else if (v === '') {
+                icon.textContent = '⬜';
+            } else {
+                select.classList.add('incorrecto');
+                icon.textContent = '❌';
+            }
+        });
+
+        document.getElementById('resultadoEleccion').innerHTML = `🟢 ${ok}/${total} correctas`;
+    }
+
+    function showEleccionKeys() {
+        const container = document.getElementById('keysEleccion');
+        if (container.classList.contains('show')) {
+            container.classList.remove('show');
+            return;
+        }
+        const respuestas = [
+            "1. Todavía no he desayunado (Perfecto)",
+            "2. El mes pasado cobré poco (Indefinido)",
+            "3. ¿Qué has hecho hoy? (Perfecto)",
+            "4. He trabajado todo el día (Perfecto)",
+            "5. El jefe no ha llegado aún (Perfecto)",
+            "6. Llegué a España el martes pasado (Indefinido)",
+            "7. ¿Habéis cenado ya? (Perfecto)",
+            "8. Encontré la llave (Indefinido)",
+            "9. ¿Has invitado hasta ahora? (Perfecto)",
+            "10. El sábado pasado cené con los Peralta (Indefinido)"
+        ];
+        let html = '<strong>📌 Respuestas correctas:</strong><br>';
+        respuestas.forEach(item => {
+            html += `<div class="key-item"><span class="correcta">${item}</span></div>`;
+        });
+        container.innerHTML = html;
+        container.classList.add('show');
+    }
+
+    function clearEleccion() {
+        eleccionIds.forEach(id => {
+            const select = document.getElementById(id);
+            select.value = '';
+            select.classList.remove('correcto', 'incorrecto');
+        });
+        for (let i = 1; i <= 10; i++) {
+            document.getElementById('iconE' + i).textContent = '';
+        }
+        document.getElementById('resultadoEleccion').innerHTML = '';
+        document.getElementById('keysEleccion').classList.remove('show');
+    }
+
+    // ============================================================
+    // EJERCICIO 4: IDENTIFICAR
+    // ============================================================
+    const identificarCorrecta = [
+        "Perfecto", "Indefinido", "Perfecto", "Indefinido",
+        "Perfecto", "Indefinido", "Perfecto", "Indefinido"
+    ];
+    const identificarIds = ['id1','id2','id3','id4','id5','id6','id7','id8'];
+
+    function getIdentificarValues() {
+        return identificarIds.map(id => document.getElementById(id).value.trim());
+    }
+
+    function checkIdentificar() {
+        const vals = getIdentificarValues();
+        let ok = 0, total = identificarCorrecta.length;
+
+        vals.forEach((v, i) => {
+            const input = document.getElementById(identificarIds[i]);
+            const icon = document.getElementById('iconId' + (i + 1));
+            input.classList.remove('correcto', 'incorrecto');
+            const norm = v.toLowerCase().trim();
+            const correct = identificarCorrecta[i].toLowerCase();
+            if (norm === correct) {
+                ok++;
+                input.classList.add('correcto');
+                icon.textContent = '✅';
+            } else if (v === '') {
+                icon.textContent = '⬜';
+            } else {
+                input.classList.add('incorrecto');
+                icon.textContent = '❌';
+            }
+        });
+
+        document.getElementById('resultadoIdentificar').innerHTML = `🟢 ${ok}/${total} correctas`;
+    }
+
+    function showIdentificarKeys() {
+        const container = document.getElementById('keysIdentificar');
+        if (container.classList.contains('show')) {
+            container.classList.remove('show');
+            return;
+        }
+        const frases = [
+            "1. He comido mucho hoy. → Perfecto",
+            "2. Viajé a México el año pasado. → Indefinido",
+            "3. Han llegado los invitados. → Perfecto",
+            "4. Conocí a mi esposa en 1999. → Indefinido",
+            "5. Hemos hablado esta mañana. → Perfecto",
+            "6. Escribí una carta ayer. → Indefinido",
+            "7. He vivido aquí toda mi vida. → Perfecto",
+            "8. Nací en Madrid. → Indefinido"
+        ];
+        let html = '<strong>📌 Respuestas correctas:</strong><br>';
+        frases.forEach(item => {
+            html += `<div class="key-item"><span class="correcta">${item}</span></div>`;
+        });
+        container.innerHTML = html;
+        container.classList.add('show');
+    }
+
+    function clearIdentificar() {
+        identificarIds.forEach(id => {
+            const input = document.getElementById(id);
+            input.value = '';
+            input.classList.remove('correcto', 'incorrecto');
+        });
+        for (let i = 1; i <= 8; i++) {
+            document.getElementById('iconId' + i).textContent = '';
+        }
+        document.getElementById('resultadoIdentificar').innerHTML = '';
+        document.getElementById('keysIdentificar').classList.remove('show');
+    }
+
+    // ============================================================
+    // EJERCICIO 5: CONJUGACIÓN
+    // ============================================================
+    const conjugacionCorrecta = [
+        "he pedido", "pedí",
+        "has conducido", "condujiste",
+        "ha querido", "quiso",
+        "hemos charlado", "charlamos",
+        "habéis resuelto", "resolvisteis",
+        "han dormido", "durmieron",
+        "he dicho", "dije",
+        "has roto", "rompiste",
+        "ha interrogado", "interrogó",
+        "hemos respondido", "respondimos"
+    ];
+    const conjIds = [
+        'conj1_p','conj1_i','conj2_p','conj2_i','conj3_p','conj3_i',
+        'conj4_p','conj4_i','conj5_p','conj5_i','conj6_p','conj6_i',
+        'conj7_p','conj7_i','conj8_p','conj8_i','conj9_p','conj9_i',
+        'conj10_p','conj10_i'
+    ];
+
+    function getConjValues() {
+        return conjIds.map(id => document.getElementById(id).value.trim());
+    }
+
+    function checkConjugacion() {
+        const vals = getConjValues();
+        let ok = 0, total = conjugacionCorrecta.length;
+
+        vals.forEach((v, i) => {
+            const input = document.getElementById(conjIds[i]);
+            input.classList.remove('correcto', 'incorrecto');
+            if (v === conjugacionCorrecta[i]) {
+                ok++;
+                input.classList.add('correcto');
+            } else if (v === '') {
+                // sin marcar
+            } else {
+                input.classList.add('incorrecto');
+            }
+        });
+
+        document.getElementById('resultadoConjugacion').innerHTML = `🟢 ${ok}/${total} correctas`;
+    }
+
+    function showConjugacionKeys() {
+        const container = document.getElementById('keysConjugacion');
+        if (container.classList.contains('show')) {
+            container.classList.remove('show');
+            return;
+        }
+        const verbos = [
+            "pedir (yo): Perfecto → he pedido, Indefinido → pedí",
+            "conducir (tú): Perfecto → has conducido, Indefinido → condujiste",
+            "querer (él): Perfecto → ha querido, Indefinido → quiso",
+            "charlar (nosotros): Perfecto → hemos charlado, Indefinido → charlamos",
+            "resolver (vosotros): Perfecto → habéis resuelto, Indefinido → resolvisteis",
+            "dormir (ellos): Perfecto → han dormido, Indefinido → durmieron",
+            "decir (yo): Perfecto → he dicho, Indefinido → dije",
+            "romper (tú): Perfecto → has roto, Indefinido → rompiste",
+            "interrogar (él): Perfecto → ha interrogado, Indefinido → interrogó",
+            "responder (nosotros): Perfecto → hemos respondido, Indefinido → respondimos"
+        ];
+        let html = '<strong>📌 Respuestas correctas:</strong><br>';
+        verbos.forEach(item => {
+            html += `<div class="key-item"><span class="correcta">${item}</span></div>`;
+        });
+        container.innerHTML = html;
+        container.classList.add('show');
+    }
+
+    function clearConjugacion() {
+        conjIds.forEach(id => {
+            const input = document.getElementById(id);
+            input.value = '';
+            input.classList.remove('correcto', 'incorrecto');
+        });
+        document.getElementById('resultadoConjugacion').innerHTML = '';
+        document.getElementById('keysConjugacion').classList.remove('show');
+    }
+</script>
+</body>
+</html>
