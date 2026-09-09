@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 La historia misteriosa · Indefinido</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: #1f1a15;
+            font-family: 'Courier New', Courier, 'Lucida Sans Typewriter', monospace;
+            padding: 2rem 1rem;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            background: #f4efe6;
+            background-image: linear-gradient(rgba(160, 130, 100, 0.08) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(160, 130, 100, 0.08) 1px, transparent 1px);
+            background-size: 24px 24px;
+            padding: 2rem 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.8), 0 0 0 3px #4d3a28 inset;
+            border: 6px solid #3f2e1d;
+            position: relative;
+        }
+        h1 {
+            font-size: 2.4rem;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            color: #2b1c0e;
+            border-bottom: 4px double #6b4f34;
+            padding-bottom: 0.2rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        h1 small {
+            font-size: 0.9rem;
+            background: #2b1c0e;
+            color: #ede3d4;
+            padding: 0.2rem 1.2rem;
+            border-radius: 40px;
+            letter-spacing: 2px;
+        }
+        .fecha {
+            background: #e5d7c4;
+            padding: 0.3rem 1.2rem;
+            border-radius: 30px;
+            display: inline-block;
+            margin: 0.5rem 0 1.5rem;
+            border: 1px solid #ac947c;
+            font-weight: 600;
+            color: #2b1c0e;
+        }
+        .transcripcion {
+            background: #fcf7f0;
+            padding: 1.5rem 2rem;
+            border-left: 8px solid #6b4f36;
+            border-radius: 0 12px 12px 0;
+            box-shadow: inset 0 0 0 1px #d6cbbc, 0 6px 12px rgba(0,0,0,0.1);
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: #1e150e;
+            margin-bottom: 2rem;
+        }
+        .transcripcion .inspector { color: #7f3f2a; font-weight: 700; }
+        .transcripcion .martinez { color: #2b5a6b; font-weight: 700; }
+        .transcripcion .intervencion { margin-left: 1.2rem; padding-left: 0.5rem; border-left: 2px dotted #aa8b74; }
+
+        .seccion {
+            background: #e8dccc;
+            padding: 1.5rem 2rem;
+            border-radius: 20px;
+            margin-top: 2.2rem;
+            border: 1px solid #b8a086;
+            box-shadow: 0 6px 0 #4d3a28;
+        }
+        .seccion h2 {
+            font-size: 1.6rem;
+            letter-spacing: 3px;
+            color: #271a0d;
+            border-bottom: 3px solid #7f6242;
+            padding-bottom: 0.4rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .preguntas {
+            list-style: none;
+            padding: 0;
+        }
+        .preguntas li {
+            background: #fcf7f0;
+            margin-bottom: 0.8rem;
+            padding: 0.6rem 1.2rem;
+            border-radius: 40px 8px 8px 40px;
+            border-left: 8px solid #7f6242;
+            font-weight: 500;
+            color: #1e150e;
+        }
+        .preguntas li::before {
+            content: "▹";
+            color: #7f3f2a;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .ejercicio {
+            background: #fcf7f0;
+            padding: 1.2rem 1.8rem;
+            border-radius: 16px;
+            margin-bottom: 1.8rem;
+            border-left: 8px solid #7f6242;
+        }
+        .ejercicio p {
+            margin: 0.4rem 0;
+            font-size: 1.05rem;
+        }
+        .item-ej {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: baseline;
+            gap: 4px 8px;
+            margin-bottom: 0.8rem;
+            background: #faf3e9;
+            padding: 0.4rem 0.8rem;
+            border-radius: 40px;
+        }
+        .item-ej .numero {
+            font-weight: 700;
+            color: #7f6242;
+            min-width: 28px;
+        }
+        .item-ej input {
+            border: none;
+            border-bottom: 2px solid #7f6242;
+            background: transparent;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1rem;
+            width: 200px;
+            padding: 0.1rem 0.3rem;
+            color: #1f150c;
+            font-weight: 600;
+            transition: 0.15s;
+        }
+        .item-ej input:focus {
+            outline: none;
+            border-bottom-color: #b14d27;
+            background: #f0e3d0;
+        }
+        .item-ej .texto-base {
+            color: #3d2e1d;
+            font-weight: 500;
+        }
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 1rem 0 0.5rem;
+        }
+        .btn {
+            background: #4d3a28;
+            border: none;
+            color: #f2ecdf;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: 700;
+            font-size: 0.9rem;
+            padding: 0.5rem 1.6rem;
+            border-radius: 60px;
+            letter-spacing: 1.5px;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #1f150c;
+            transition: 0.1s ease;
+            border: 1px solid #7f6242;
+            text-transform: uppercase;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 #1f150c;
+            background: #5f4733;
+        }
+        .btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 0px 0 #1f150c;
+        }
+        .btn-verde {
+            background: #2d5a3b;
+            box-shadow: 0 4px 0 #14331f;
+            border-color: #4b7a58;
+        }
+        .btn-verde:hover { background: #3a704b; }
+        .btn-marron {
+            background: #7f6242;
+            box-shadow: 0 4px 0 #4d351f;
+        }
+        .btn-marron:hover { background: #9c7a56; }
+        .btn-gris {
+            background: #5a4a3a;
+            box-shadow: 0 4px 0 #2f2419;
+        }
+        .btn-gris:hover { background: #6f5c49; }
+        .resultado {
+            margin-top: 0.8rem;
+            font-weight: 600;
+            background: #e5d7c4;
+            padding: 0.3rem 1.2rem;
+            border-radius: 40px;
+            display: inline-block;
+        }
+        .respuestas-ocultas {
+            margin-top: 1rem;
+            background: #dacfc0;
+            padding: 0.8rem 1.5rem;
+            border-radius: 16px;
+            border-left: 6px solid #4d3a28;
+            display: none;
+        }
+        .respuestas-ocultas.visible {
+            display: block;
+        }
+        .respuestas-ocultas p {
+            margin: 0.3rem 0;
+            font-weight: 500;
+        }
+        .respuestas-ocultas .num {
+            font-weight: 700;
+            color: #7f3f2a;
+        }
+        .nota {
+            background: #2b1c0e;
+            color: #ede3d4;
+            padding: 0.3rem 1.2rem;
+            border-radius: 40px;
+            display: inline-block;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            margin-top: 0.5rem;
+        }
+        .footer-nota {
+            margin-top: 2rem;
+            border-top: 2px dotted #7f6242;
+            padding-top: 1rem;
+            text-align: right;
+            color: #4d3a28;
+            letter-spacing: 1px;
+        }
+        @media (max-width: 700px) {
+            .container { padding: 1.2rem; }
+            .seccion { padding: 1rem; }
+            .item-ej input { width: 130px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>
+        <span>📜 La historia misteriosa</span>
+        <small>expediente #08</small>
+    </h1>
+    <div class="fecha">🗓️ Domingo, 20 de agosto · 03:45</div>
+
+    <!-- ====== TRANSCRIPCIÓN DEL INTERROGATORIO ====== -->
+    <div class="transcripcion">
+        <p><span class="inspector">Inspector:</span> Señor Martínez, los vecinos afirman que a las dos de la madrugada usted mató a su esposa.</p>
+        <p><span class="martinez">Sr. Martínez:</span> No, señor Inspector, yo no la maté, lo juro.</p>
+        <p><span class="inspector">Inspector:</span> ¿A qué hora salió de su casa ayer?</p>
+        <p><span class="martinez">Sr. Martínez:</span> A eso de las cinco.</p>
+        <p><span class="inspector">Inspector:</span> ¿Cerró usted con llave la puerta?</p>
+        <p><span class="martinez">Sr. Martínez:</span> Ya no me acuerdo.</p>
+        <p><span class="inspector">Inspector:</span> ¿Adónde fue usted?</p>
+        <p><span class="martinez">Sr. Martínez:</span> Fueno, como todos los sábados, fui al club y pasé allí la tarde. Cené y luego jugué a las cartas con el alcalde y el director del teatro.</p>
+        <p><span class="inspector">Inspector:</span> ¿Ganó usted o perdió?</p>
+        <p><span class="martinez">Sr. Martínez:</span> Perdí un poco de dinero, nada importante.</p>
+        <p><span class="inspector">Inspector:</span> ¿Hasta cuándo estuvo usted en el club?</p>
+        <p><span class="martinez">Sr. Martínez:</span> Estuve allí hasta las once y media, más o menos.</p>
+        <p><span class="inspector">Inspector:</span> ¿Luego se fue usted directamente a su casa?</p>
+        <p><span class="martinez">Sr. Martínez:</span> No, a las doce fui a ver a Lola Sánchez.</p>
+        <p><span class="inspector">Inspector:</span> ¿La celebra modelo?</p>
+        <p><span class="martinez">Sr. Martínez:</span> Sí, sí. Llegué a casa a eso de las tres y media de la madrugada. Abrí la puerta, apagué la luz, subí a mi cuarto y me acosté.</p>
+        <p><span class="inspector">Inspector:</span> ¿Entró usted en el dormitorio de su esposa cuando llegó?</p>
+        <p><span class="martinez">Sr. Martínez:</span> No, no, inspector. Me fui directamente a mi cuarto.</p>
+    </div>
+
+    <!-- ====== COMPRENSIÓN ====== -->
+    <div class="seccion">
+        <h2><span>🔎</span> Comprensión · ¿qué pasó?</h2>
+        <ul class="preguntas">
+            <li>¿A qué hora, según los vecinos, ocurrió el crimen?</li>
+            <li>¿Qué hizo Ricardo Martínez después de salir del club?</li>
+            <li>¿Con quién jugó a las cartas el Sr. Martínez?</li>
+            <li>¿A qué hora llegó Ricardo a su casa?</li>
+            <li>Según su declaración, ¿entró al dormitorio de su esposa?</li>
+            <li>¿Qué hizo nada más llegar a casa? (menciona tres acciones)</li>
+        </ul>
+        <div style="margin-top: 0.8rem; display: flex; flex-wrap: wrap; gap: 12px; align-items: center;">
+            <button class="btn btn-marron" id="mostrarRespuestasComprension">🔍 Mostrar respuestas</button>
+            <button class="btn btn-gris" id="ocultarRespuestasComprension">🙈 Ocultar</button>
+        </div>
+        <div id="respuestasComprension" class="respuestas-ocultas">
+            <p><span class="num">1.</span> Según los vecinos, el crimen ocurrió a las dos de la madrugada.</p>
+            <p><span class="num">2.</span> Después de salir del club, Ricardo Martínez fue a ver a Lola Sánchez a las doce.</p>
+            <p><span class="num">3.</span> Jugó a las cartas con el alcalde y el director del teatro.</p>
+            <p><span class="num">4.</span> Llegó a su casa a eso de las tres y media de la madrugada.</p>
+            <p><span class="num">5.</span> No, no entró al dormitorio de su esposa. Se fue directamente a su cuarto.</p>
+            <p><span class="num">6.</span> Abrió la puerta, apagó la luz, subió a su cuarto y se acostó.</p>
+        </div>
+        <div style="margin-top: 0.8rem; font-style: italic; background: #dacfc0; padding: 0.3rem 1rem; border-radius: 40px; display: inline-block; font-size: 0.9rem;">
+            💡 Responde con frases completas, usando el pretérito indefinido.
+        </div>
+    </div>
+
+    <!-- ====== EJERCICIO 1: HISTORIA EN INDEFINIDO (presente → pasado) ====== -->
+    <div class="seccion">
+        <h2><span>📖</span> 1. Cuenta la historia en Indefinido</h2>
+        <div class="ejercicio">
+            <p style="font-weight: 600; margin-bottom: 0.8rem;">Escribe la forma correcta del pretérito indefinido para cada verbo en presente.</p>
+            <div id="historiaIndefinido">
+                <div class="item-ej"><span class="numero">1.</span> <span class="texto-base">El verano pasado, el señor Sánchez <strong>pasa</strong> una semana en Andalucía.</span> → <input type="text" id="h1" value=""></div>
+                <div class="item-ej"><span class="numero">2.</span> <span class="texto-base"><strong>Llega</strong> el lunes, <strong>se aloja</strong> en Granada, en el hotel Las Palomas.</span> → <input type="text" id="h2" value="">, <input type="text" id="h3" value=""></div>
+                <div class="item-ej"><span class="numero">3.</span> <span class="texto-base">El martes, <strong>visita</strong> la Alhambra.</span> → <input type="text" id="h4" value=""></div>
+                <div class="item-ej"><span class="numero">4.</span> <span class="texto-base">Miércoles, <strong>se baña</strong> en el mar y <strong>toma el sol</strong> todo el día.</span> → <input type="text" id="h5" value="">, <input type="text" id="h6" value=""></div>
+                <div class="item-ej"><span class="numero">5.</span> <span class="texto-base">Por la noche sus amigos lo <strong>invitan</strong> a ver una actuación de flamenco, <strong>degustan</strong> unos platos típicos.</span> → <input type="text" id="h7" value="">, <input type="text" id="h8" value=""></div>
+                <div class="item-ej"><span class="numero">6.</span> <span class="texto-base">El jueves, <strong>participa</strong> en una excursión a Gibraltar, <strong>cruza</strong> el estrecho en transbordador y <strong>pasa</strong> una tarde maravillosa en Ceuta.</span> → <input type="text" id="h9" value="">, <input type="text" id="h10" value="">, <input type="text" id="h11" value=""></div>
+                <div class="item-ej"><span class="numero">7.</span> <span class="texto-base">El sábado, <strong>viaja</strong> a Sevilla, <strong>participa</strong> en un crucero por el Guadalquivir, <strong>regresa</strong> por la noche.</span> → <input type="text" id="h12" value="">, <input type="text" id="h13" value="">, <input type="text" id="h14" value=""></div>
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-verde" id="checkHistoria">✅ Autocorrección</button>
+                <button class="btn btn-marron" id="showHistoriaRespuestas">🔍 Mostrar respuestas</button>
+                <button class="btn" id="clearHistoria">🧹 Limpiar</button>
+            </div>
+            <div id="resultadoHistoria" class="resultado"></div>
+        </div>
+    </div>
+
+    <!-- ====== EJERCICIO 2: TRANSFORMACIONES ====== -->
+    <div class="seccion">
+        <h2><span>🔄</span> 2. Transforma según el modelo</h2>
+        <div class="ejercicio">
+            <p style="font-weight: 600; margin-bottom: 0.2rem;">Modelo: <em>Generalmente sueño contigo.</em> → Anoche <strong>soñé</strong> contigo.</p>
+            <div id="transformaciones">
+                <div class="item-ej"><span class="numero">1.</span> Generalmente sueño contigo. → Anoche <input type="text" id="t1" value=""> contigo.</div>
+                <div class="item-ej"><span class="numero">2.</span> Juan se despierta tarde. → El domingo pasado Juan se <input type="text" id="t2" value=""> tarde.</div>
+                <div class="item-ej"><span class="numero">3.</span> Le muestro mi nuevo coche. → Hace tres días le <input type="text" id="t3" value=""> mi nuevo coche.</div>
+                <div class="item-ej"><span class="numero">4.</span> Juego al fútbol tres veces a la semana. → La semana pasada <input type="text" id="t4" value=""> al fútbol tres veces.</div>
+                <div class="item-ej"><span class="numero">5.</span> Normalmente me acuesto a las doce. → Aquella noche me <input type="text" id="t5" value=""> a las doce.</div>
+                <div class="item-ej"><span class="numero">6.</span> Este invierno nieva poco. → El invierno pasado <input type="text" id="t6" value=""> poco.</div>
+                <div class="item-ej"><span class="numero">7.</span> Hoy no me encuentro bien. → La semana pasada no me <input type="text" id="t7" value=""> bien.</div>
+                <div class="item-ej"><span class="numero">8.</span> Gabriel comienza a aprender a esquiar. → Aquel enero <input type="text" id="t8" value=""> a aprender a esquiar.</div>
+                <div class="item-ej"><span class="numero">9.</span> Chimo juega en la tercera división. → Desde 1992 hasta 1999 <input type="text" id="t9" value=""> en la tercera división.</div>
+                <div class="item-ej"><span class="numero">10.</span> En general nos acostamos tarde. → El martes pasado nos <input type="text" id="t10" value=""> tarde.</div>
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-verde" id="checkTransform">✅ Autocorrección</button>
+                <button class="btn btn-marron" id="showTransformRespuestas">🔍 Mostrar respuestas</button>
+                <button class="btn" id="clearTransform">🧹 Limpiar</button>
+            </div>
+            <div id="resultadoTransform" class="resultado"></div>
+        </div>
+    </div>
+
+    <!-- ====== EJERCICIO 3: CORREGIR ERRORES ====== -->
+    <div class="seccion">
+        <h2><span>⚠️</span> 3. Corrige los errores (Indefinido)</h2>
+        <div class="ejercicio">
+            <p style="font-weight: 600;">Cada frase tiene un error en el indefinido. Escríbela correctamente.</p>
+            <div id="correccionErrores">
+                <div class="item-ej"><span class="numero">a.</span> Ayer *yo hacé* la tarea. → yo <input type="text" id="e1" value=""></div>
+                <div class="item-ej"><span class="numero">b.</span> Ella *no querí* venir. → ella no <input type="text" id="e2" value=""></div>
+                <div class="item-ej"><span class="numero">c.</span> Nosotros *ponimos* la mesa. → nosotros <input type="text" id="e3" value=""></div>
+                <div class="item-ej"><span class="numero">d.</span> Tú *tuvistes* suerte. → tú <input type="text" id="e4" value=""></div>
+                <div class="item-ej"><span class="numero">e.</span> Ellos *andaron* por el parque. (→ anduvieron) → ellos <input type="text" id="e5" value=""></div>
+                <div class="item-ej"><span class="numero">f.</span> Yo *sabí* la verdad. → yo <input type="text" id="e6" value=""></div>
+                <div class="item-ej"><span class="numero">g.</span> Vosotros *dijistes* todo. → vosotros <input type="text" id="e7" value=""></div>
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-verde" id="checkErrores">✅ Autocorrección</button>
+                <button class="btn btn-marron" id="showErroresRespuestas">🔍 Mostrar respuestas</button>
+                <button class="btn" id="clearErrores">🧹 Limpiar</button>
+            </div>
+            <div id="resultadoErrores" class="resultado"></div>
+        </div>
+    </div>
+
+    <div class="footer-nota">
+        🔎 Expediente completo · Pretérito indefinido · respuestas con un solo clic
+    </div>
+</div>
+
+<script>
+    (function() {
+        // ==================== COMPRENSIÓN ====================
+        document.getElementById('mostrarRespuestasComprension').addEventListener('click', function() {
+            document.getElementById('respuestasComprension').classList.add('visible');
+        });
+        document.getElementById('ocultarRespuestasComprension').addEventListener('click', function() {
+            document.getElementById('respuestasComprension').classList.remove('visible');
+        });
+
+        // ==================== HISTORIA (Indefinido) ====================
+        const historiaCorrectas = [
+            "pasó", "Llegó", "se alojó", "visitó", "se bañó", "tomó", "invitaron", "degustaron",
+            "participó", "cruzó", "pasó", "viajó", "participó", "regresó"
+        ];
+        const historiaIds = ['h1','h2','h3','h4','h5','h6','h7','h8','h9','h10','h11','h12','h13','h14'];
+
+        function getHistoriaValues() {
+            return historiaIds.map(id => document.getElementById(id).value.trim());
+        }
+        function setHistoriaValues(arr) {
+            historiaIds.forEach((id, idx) => {
+                document.getElementById(id).value = arr[idx] || '';
+            });
+        }
+        function checkHistoria() {
+            const vals = getHistoriaValues();
+            let ok = 0, total = historiaCorrectas.length;
+            vals.forEach((v, i) => {
+                const input = document.getElementById(historiaIds[i]);
+                const norm = v.toLowerCase().replace(/\s+/g, ' ');
+                const correct = historiaCorrectas[i].toLowerCase();
+                if (norm === correct) {
+                    ok++;
+                    input.style.borderBottomColor = '#1d6b2e';
+                } else {
+                    input.style.borderBottomColor = '#a13d2a';
+                }
+            });
+            document.getElementById('resultadoHistoria').innerHTML = `🟢 ${ok}/${total} correctas`;
+        }
+        function showHistoriaRespuestas() {
+            setHistoriaValues(historiaCorrectas);
+            historiaIds.forEach(id => document.getElementById(id).style.borderBottomColor = '#1d6b2e');
+            document.getElementById('resultadoHistoria').innerHTML = `📖 Respuestas mostradas (${historiaCorrectas.length})`;
+        }
+        function clearHistoria() {
+            setHistoriaValues(new Array(historiaIds.length).fill(''));
+            historiaIds.forEach(id => document.getElementById(id).style.borderBottomColor = '#7f6242');
+            document.getElementById('resultadoHistoria').innerHTML = '';
+        }
+        document.getElementById('checkHistoria').addEventListener('click', checkHistoria);
+        document.getElementById('showHistoriaRespuestas').addEventListener('click', showHistoriaRespuestas);
+        document.getElementById('clearHistoria').addEventListener('click', clearHistoria);
+
+        // ==================== TRANSFORMACIONES ====================
+        const transCorrectas = [
+            "soñé", "despertó", "mostré", "jugué", "acosté", "nevó", "encontré", "comenzó", "jugó", "acostamos"
+        ];
+        const transIds = ['t1','t2','t3','t4','t5','t6','t7','t8','t9','t10'];
+
+        function getTransValues() {
+            return transIds.map(id => document.getElementById(id).value.trim());
+        }
+        function setTransValues(arr) {
+            transIds.forEach((id, idx) => document.getElementById(id).value = arr[idx] || '');
+        }
+        function checkTransform() {
+            const vals = getTransValues();
+            let ok = 0, total = transCorrectas.length;
+            vals.forEach((v, i) => {
+                const input = document.getElementById(transIds[i]);
+                const norm = v.toLowerCase().replace(/\s+/g, ' ');
+                const correct = transCorrectas[i].toLowerCase();
+                if (norm === correct) {
+                    ok++;
+                    input.style.borderBottomColor = '#1d6b2e';
+                } else {
+                    input.style.borderBottomColor = '#a13d2a';
+                }
+            });
+            document.getElementById('resultadoTransform').innerHTML = `🟢 ${ok}/${total} correctas`;
+        }
+        function showTransformRespuestas() {
+            setTransValues(transCorrectas);
+            transIds.forEach(id => document.getElementById(id).style.borderBottomColor = '#1d6b2e');
+            document.getElementById('resultadoTransform').innerHTML = `📖 Respuestas mostradas (${transCorrectas.length})`;
+        }
+        function clearTransform() {
+            setTransValues(new Array(transIds.length).fill(''));
+            transIds.forEach(id => document.getElementById(id).style.borderBottomColor = '#7f6242');
+            document.getElementById('resultadoTransform').innerHTML = '';
+        }
+        document.getElementById('checkTransform').addEventListener('click', checkTransform);
+        document.getElementById('showTransformRespuestas').addEventListener('click', showTransformRespuestas);
+        document.getElementById('clearTransform').addEventListener('click', clearTransform);
+
+        // ==================== CORRECCIÓN DE ERRORES ====================
+        const errorCorrectas = [
+            "hice", "quiso", "pusimos", "tuviste", "anduvieron", "supe", "dijisteis"
+        ];
+        const errorIds = ['e1','e2','e3','e4','e5','e6','e7'];
+
+        function getErrorValues() {
+            return errorIds.map(id => document.getElementById(id).value.trim());
+        }
+        function setErrorValues(arr) {
+            errorIds.forEach((id, idx) => document.getElementById(id).value = arr[idx] || '');
+        }
+        function checkErrores() {
+            const vals = getErrorValues();
+            let ok = 0, total = errorCorrectas.length;
+            vals.forEach((v, i) => {
+                const input = document.getElementById(errorIds[i]);
+                const norm = v.toLowerCase().replace(/\s+/g, ' ');
+                const correct = errorCorrectas[i].toLowerCase();
+                if (norm === correct) {
+                    ok++;
+                    input.style.borderBottomColor = '#1d6b2e';
+                } else {
+                    input.style.borderBottomColor = '#a13d2a';
+                }
+            });
+            document.getElementById('resultadoErrores').innerHTML = `🟢 ${ok}/${total} correctas`;
+        }
+        function showErroresRespuestas() {
+            setErrorValues(errorCorrectas);
+            errorIds.forEach(id => document.getElementById(id).style.borderBottomColor = '#1d6b2e');
+            document.getElementById('resultadoErrores').innerHTML = `📖 Respuestas mostradas (${errorCorrectas.length})`;
+        }
+        function clearErrores() {
+            setErrorValues(new Array(errorIds.length).fill(''));
+            errorIds.forEach(id => document.getElementById(id).style.borderBottomColor = '#7f6242');
+            document.getElementById('resultadoErrores').innerHTML = '';
+        }
+        document.getElementById('checkErrores').addEventListener('click', checkErrores);
+        document.getElementById('showErroresRespuestas').addEventListener('click', showErroresRespuestas);
+        document.getElementById('clearErrores').addEventListener('click', clearErrores);
+
+        // inicializar: todos los campos vacíos
+        [...historiaIds, ...transIds, ...errorIds].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.value = '';
+                el.style.borderBottomColor = '#7f6242';
+            }
+        });
+    })();
+</script>
+</body>
+</html>
